@@ -36,8 +36,10 @@ while running:
     # Creating main player
     hero = game_objects.Player(name)
     
+    lab = game_objects.Lab
+    
     while command_in_progress:
         print('------------------------------------------')
-        text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], hero)
+        text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], hero, hero.location, lab)
     
     

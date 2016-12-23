@@ -4,7 +4,7 @@ Created on Dec 21, 2016
 @author: Hunter Malm
 '''
 # Text parse method
-def parse_command(prompt, player):
+def parse_command(prompt, player, current_loc, envi):
     # Parser input call and variables
     raw_command = input(prompt).lower()
     print('------------------------------------------')
@@ -52,7 +52,7 @@ def parse_command(prompt, player):
     
     # DEBUGGING
     #print('>>> Raw Parts: ' + str(raw_parts))
-    # print('>>> Number of words: ' + str(word_count))
+    #print('>>> Number of words: ' + str(word_count))
     
     # Remove filler words from fixed_parts (fixed_parts is currently a copy of raw_parts)
     for word in filler_words:
@@ -158,7 +158,7 @@ def parse_command(prompt, player):
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
             location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player)
         elif active_actions[0] == 'take':
-            item_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player)
+            item_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player, location, envi)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -174,6 +174,13 @@ def parse_command(prompt, player):
 
 # Location handling method
 def location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player):
+    
+    # Handles issue of removing locations from active_locs list when no action appears before it
+    while active_actions[1] > active_locs[1]:
+        active_locs.pop(0)
+        active_locs.pop(0)
+    
+    
     if has_article[0] == True:
         if has_dir_obj[0] == True:
             player.set_location(active_locs[0])
@@ -195,9 +202,47 @@ def location_handle(active_actions, has_article, has_dir_obj, active_locs, activ
     return active_actions.pop(0), active_actions.pop(0)
 
 
-def item_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player):
+# Location handling method
+def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
+    
+    # Handles issue of removing locations from active_objs list when no action appears before it
+    while active_actions[1] > active_objs[1]:
+        active_objs.pop(0)
+        active_objs.pop(0)
+        
+        
     if has_article[0] == True:
-        pass
+        if has_dir_obj[0] == True:
+            if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
+                envi.remove_item(active_objs[0])
+                player.add_item(active_objs[0])
+                return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            
+            
+        else:
+            if active_actions[0] == 'goto':
+                print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
+            elif active_actions[0] == 'go':
+                print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
+            else:
+                print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
+    else:
+        if has_dir_obj[0] == True:
+            player.set_location(active_objs[0])
+            return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0)
+        else:
+            print(str(active_actions[0]) + ' where?')
+           
+    return active_actions.pop(0), active_actions.pop(0)
+    
+    
+def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, location):
+    
+    
+    if active_objs[0] in location.inventory:
+        return True
+    else:
+        return False
     
     
     

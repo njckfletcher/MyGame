@@ -46,6 +46,10 @@ class Player:
         print('Inventory: ' + str(self.inventory))
         
         
+    def add_inventory(self, item):
+        self.inventory.append(item)
+        
+        
     def display_stats(self):
         self.display_name()
         self.display_health()
@@ -66,4 +70,8 @@ class Environment:
         self.inventory.remove(item)
     
 class Lab(Environment):
-    inventory = ['lab phone']
+    inventory = ['phone']
+    
+    
+    
+    
