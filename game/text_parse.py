@@ -157,6 +157,8 @@ def parse_command(prompt, player):
             active_actions.pop(0)
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
             location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player)
+        elif active_actions[0] == 'take':
+            item_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -193,6 +195,10 @@ def location_handle(active_actions, has_article, has_dir_obj, active_locs, activ
     return active_actions.pop(0), active_actions.pop(0)
 
 
-
-
-
+def item_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player):
+    if has_article[0] == True:
+        pass
+    
+    
+    
+    

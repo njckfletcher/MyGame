@@ -55,5 +55,15 @@ class Player:
         
         
 class Environment:
-    pass
+    inventory = []
+    
+    
+    def add_item(self, item):
+        self.inventory.append(item)
         
+        
+    def remove_item(self, item):
+        self.inventory.remove(item)
+    
+class Lab(Environment):
+    inventory = ['lab phone']
