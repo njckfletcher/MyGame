@@ -37,9 +37,11 @@ while running:
     hero = game_objects.Player(name)
     
     lab = game_objects.Lab
+    dorm = game_objects.Dorm
     
     while command_in_progress:
         print('------------------------------------------')
-        text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], hero, hero.location, lab)
+        text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], hero, hero.location, eval(hero.location))
+
     
     

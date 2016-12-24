@@ -4,6 +4,7 @@ Created on Dec 21, 2016
 @author: Hunter Malm
 '''
 # Text parse method
+from game import game_objects
 def parse_command(prompt, player, current_loc, envi):
     # Parser input call and variables
     raw_command = input(prompt).lower()
@@ -105,7 +106,6 @@ def parse_command(prompt, player, current_loc, envi):
                 active_objs.append(i)
     # DEBUGGING
     #print('>>> Active objects: ' + str(active_objs))
-    #print()
     
     # Running possibilities based on number of actions called
     for i in range(num_actv_actions):
@@ -158,7 +158,7 @@ def parse_command(prompt, player, current_loc, envi):
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
             location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player)
         elif active_actions[0] == 'take':
-            item_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player, location, envi)
+            item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -176,9 +176,12 @@ def parse_command(prompt, player, current_loc, envi):
 def location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player):
     
     # Handles issue of removing locations from active_locs list when no action appears before it
-    while active_actions[1] > active_locs[1]:
-        active_locs.pop(0)
-        active_locs.pop(0)
+    if not active_locs:
+        pass
+    else:
+        while active_actions[1] > active_locs[1]:
+            active_locs.pop(0)
+            active_locs.pop(0)
     
     
     if has_article[0] == True:
@@ -206,16 +209,19 @@ def location_handle(active_actions, has_article, has_dir_obj, active_locs, activ
 def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
     
     # Handles issue of removing locations from active_objs list when no action appears before it
-    while active_actions[1] > active_objs[1]:
-        active_objs.pop(0)
-        active_objs.pop(0)
+    if not active_objs:
+        pass
+    else:
+        while active_actions[1] > active_objs[1]:
+            active_objs.pop(0)
+            active_objs.pop(0)
         
         
     if has_article[0] == True:
         if has_dir_obj[0] == True:
             if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
-                envi.remove_item(active_objs[0])
-                player.add_item(active_objs[0])
+                envi.remove_item(envi, active_objs[0])
+                player.add_item(active_objs[0], active_actions[0])
                 return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
             
             
@@ -226,24 +232,23 @@ def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_ar
                 print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
             else:
                 print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
+                
+                
     else:
         if has_dir_obj[0] == True:
             player.set_location(active_objs[0])
             return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0)
         else:
             print(str(active_actions[0]) + ' where?')
-           
+            
     return active_actions.pop(0), active_actions.pop(0)
     
     
-def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, location):
+def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
     
-    
-    if active_objs[0] in location.inventory:
+    if active_objs[0] in envi.get_inventory(envi):
         return True
     else:
         return False
-    
-    
     
     

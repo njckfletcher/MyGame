@@ -46,8 +46,15 @@ class Player:
         print('Inventory: ' + str(self.inventory))
         
         
-    def add_inventory(self, item):
+    def add_item(self, item, action):
         self.inventory.append(item)
+        if action == 'take':
+            print('>>> ' + str(self.name) + ' took the ' + str(item))
+        elif action == 'pick' or action == 'pickup':
+            print('>>> ' + str(self.name) + ' picked up the ' + str(item))
+        else:
+            print('>>> ' + str(self.name) + ' grabbed the ' + str(item))
+        
         
         
     def display_stats(self):
@@ -68,10 +75,15 @@ class Environment:
         
     def remove_item(self, item):
         self.inventory.remove(item)
+        
+        
+    def get_inventory(self):
+        return self.inventory
     
 class Lab(Environment):
     inventory = ['phone']
     
     
-    
+class Dorm(Environment):
+    pass
     
