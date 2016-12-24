@@ -3,9 +3,11 @@ Created on Dec 21, 2016
 
 @author: Hunter Malm
 '''
+
+#from game import main
+
 # Text parse method
-from game import game_objects
-def parse_command(prompt, player, current_loc, envi):
+def parse_command(prompt, player, current_loc, envi, map_objects):
     # Parser input call and variables
     raw_command = input(prompt).lower()
     print('------------------------------------------')
@@ -48,7 +50,8 @@ def parse_command(prompt, player, current_loc, envi):
     
     filler_words = ['to',
                     'display',
-                    'my']
+                    'my',
+                    'up']
     
     
     # DEBUGGING
@@ -109,6 +112,8 @@ def parse_command(prompt, player, current_loc, envi):
     
     # Running possibilities based on number of actions called
     for i in range(num_actv_actions):
+        current_loc = player.get_location()
+        envi = map_objects.get(player.location)
         has_article = [False]
         has_dir_obj = [False]
         
@@ -157,7 +162,7 @@ def parse_command(prompt, player, current_loc, envi):
             active_actions.pop(0)
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
             location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player)
-        elif active_actions[0] == 'take':
+        elif active_actions[0] == 'take' or active_actions[0] == 'grab' or active_actions[0] == 'pickup' or active_actions[0] == 'pick':
             item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi)
         elif active_actions[0] == 'clear':
             for i in range(100):
@@ -191,8 +196,6 @@ def location_handle(active_actions, has_article, has_dir_obj, active_locs, activ
         else:
             if active_actions[0] == 'goto':
                 print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
-            elif active_actions[0] == 'go':
-                print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
             else:
                 print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
     else:
@@ -220,34 +223,43 @@ def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_ar
     if has_article[0] == True:
         if has_dir_obj[0] == True:
             if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
-                envi.remove_item(envi, active_objs[0])
+                envi.remove_item(active_objs[0])
                 player.add_item(active_objs[0], active_actions[0])
                 return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            
-            
-        else:
-            if active_actions[0] == 'goto':
-                print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
-            elif active_actions[0] == 'go':
-                print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
             else:
-                print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
+                print('>>> There is no ' + str(active_objs[0]) + ' here')
+        else:
+            if active_actions[0] == 'pick':
+                print(str(active_actions[0]) + ' up ' + str(active_arts[0]) + ' what?')
+            else:
+                print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
                 
                 
     else:
         if has_dir_obj[0] == True:
-            player.set_location(active_objs[0])
-            return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0)
+            if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
+                envi.remove_item(active_objs[0])
+                player.add_item(active_objs[0], active_actions[0])
+                return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0)
+            else:
+                print('>>> There is no ' + str(active_objs[0]) + ' here')
         else:
-            print(str(active_actions[0]) + ' where?')
+            if active_actions[0] == 'pick':
+                print(str(active_actions[0]) + ' up what?')
+            else:
+                print(str(active_actions[0]) + ' what?')
+            
             
     return active_actions.pop(0), active_actions.pop(0)
     
     
 def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
     
-    if active_objs[0] in envi.get_inventory(envi):
-        return True
+    if current_loc == envi.get_name():
+        if active_objs[0] in envi.get_inventory():
+            return True
+        else:
+            return False
     else:
         return False
     

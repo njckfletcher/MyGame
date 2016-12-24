@@ -28,6 +28,10 @@ class Player:
         else:
             self.location = location
             print('>>> ' + str(self.name) + ' moved to the ' + str(location))
+            
+            
+    def get_location(self):
+        return self.location
     
     
     def display_weight(self):
@@ -66,6 +70,8 @@ class Player:
         
         
 class Environment:
+    active_envi = None
+    name = None
     inventory = []
     
     
@@ -80,10 +86,25 @@ class Environment:
     def get_inventory(self):
         return self.inventory
     
+    
+    def get_name(self):
+        return self.name
+    
+    
+    def set_active_envi(self, location):
+        self.active_envi = location
+    
 class Lab(Environment):
+    name = 'lab'
     inventory = ['phone']
     
     
 class Dorm(Environment):
+    name = 'dorm'
+    pass
+
+
+class Room(Environment):
+    name = 'room'
     pass
     
