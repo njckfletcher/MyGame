@@ -3,7 +3,7 @@ Created on Dec 21, 2016
 
 @author: Hunter Malm
 '''
-from game import game_objects, text_parse, game_defs
+import game_objects, text_parse, game_defs
 import random
 
 # System objects
