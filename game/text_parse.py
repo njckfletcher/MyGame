@@ -14,7 +14,7 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
     raw_parts = raw_command.split()
     raw_word_count = len(raw_parts)
     fixed_parts = []
-    fixed_word_count = len(fixed_parts)
+    
     
     actions = ["health", 
                "inventory", 
@@ -49,25 +49,20 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
     objs = ['phone']
     active_objs = []
     
-    filler_words = ['to',
+    filter_words = ['to',
                     'display',
                     'my',
-                    'up']
+                    'up',
+                    'and']
     
     
     for word in raw_parts:
         fixed_parts.append(word)
     
     
-    # Remove filler words from fixed_parts (fixed_parts is currently a copy of raw_parts)
-    for i in range(len(filler_words)):
-        for o in range(len(fixed_parts)):
-            if fixed_parts[o] == filler_words[i]:
-                fixed_parts[o] = None
-    for word in fixed_parts:
-        if word == None:
-            fixed_parts.remove(word)
-                
+    # Remove filler words from fixed_parts and set count
+    fixed_parts = [x for x in fixed_parts if x not in filter_words]
+    fixed_word_count = len(fixed_parts)            
                 
     # Add actions and action indexes to active_actions list
     for i in range(len(fixed_parts)):
@@ -212,12 +207,12 @@ def location_handle(active_actions, has_article, has_dir_obj, active_locs, activ
 def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
     
     # Handles issue of removing locations from active_objs list when no action appears before it
-    if not active_objs:
-        pass
-    else:
-        while active_actions[1] > active_objs[1]:
+    while active_objs != []:
+        if active_actions[1] > active_objs[1]:
             active_objs.pop(0)
             active_objs.pop(0)
+        else:
+            break
         
         
     if has_article[0] == True:

@@ -26,7 +26,7 @@ while running:
         print('------------------------------------------')
         name = input('Enter your name: ')
         
-        if len(name[0]) > 20:
+        if len(name) > 20:
             print('------------------------------------------')
             print('Max amount of characters: 20')
             print('Try again..')
