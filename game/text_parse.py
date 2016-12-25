@@ -12,8 +12,9 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
     raw_command = input(prompt).lower()
     print('------------------------------------------')
     raw_parts = raw_command.split()
-    fixed_parts = raw_parts
-    #word_count = len(raw_parts)
+    raw_word_count = len(raw_parts)
+    fixed_parts = []
+    fixed_word_count = len(fixed_parts)
     
     actions = ["health", 
                "inventory", 
@@ -54,17 +55,18 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
                     'up']
     
     
-    # DEBUGGING
-    #print('>>> Raw Parts: ' + str(raw_parts))
-    #print('>>> Number of words: ' + str(word_count))
+    for word in raw_parts:
+        fixed_parts.append(word)
+    
     
     # Remove filler words from fixed_parts (fixed_parts is currently a copy of raw_parts)
-    for word in filler_words:
-        for value in fixed_parts:
-            if word in fixed_parts:
-                fixed_parts.remove(word)
-    # DEBUGGING
-    #print('>>> Fixed Parts: ' + str(fixed_parts))
+    for i in range(len(filler_words)):
+        for o in range(len(fixed_parts)):
+            if fixed_parts[o] == filler_words[i]:
+                fixed_parts[o] = None
+    for word in fixed_parts:
+        if word == None:
+            fixed_parts.remove(word)
                 
                 
     # Add actions and action indexes to active_actions list
@@ -73,12 +75,10 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
             if fixed_parts[i] == action:
                 active_actions.append(fixed_parts[i])
                 active_actions.append(i)
-    # DEBUGGING
-    # print('>>> Active actions: ' + str(active_actions))
+                
     
+    # Find number of actions
     num_actv_actions = int(len(active_actions)/2)
-    # DEBUGGING    
-    #print('Number of active actions: ' + str(num_actv_actions))
     
     
     # Add articles and article indexes to active_arts list
@@ -87,8 +87,6 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
             if fixed_parts[i] == art:
                 active_arts.append(fixed_parts[i])
                 active_arts.append(i)   
-    # DEBUGGING
-    #print('>>> Active articles: ' + str(active_arts))
     
     
     # Add locations and location indexes to active_locs list
@@ -97,8 +95,6 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
             if fixed_parts[i] == location:
                 active_locs.append(fixed_parts[i])
                 active_locs.append(i)
-    # DEBUGGING
-    #print('>>> Active locations: ' + str(active_locs))
                 
     
     # Add objects and object indexes to active_objs list
@@ -107,8 +103,12 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
             if fixed_parts[i] == obj:
                 active_objs.append(fixed_parts[i])
                 active_objs.append(i)
-    # DEBUGGING
-    #print('>>> Active objects: ' + str(active_objs))
+                
+                
+    ##########################################
+    # DEBUG Overall Input
+    debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs)
+    
     
     # Running possibilities based on number of actions called
     for i in range(num_actv_actions):
@@ -180,13 +180,13 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
 # Location handling method
 def location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player):
     
-    # Handles issue of removing locations from active_locs list when no action appears before it
-    if not active_locs:
-        pass
-    else:
-        while active_actions[1] > active_locs[1]:
+    # Handles issue of removing locations from active_locs list when no action appears before it            
+    while active_locs != []:
+        if active_actions[1] > active_locs[1]:
             active_locs.pop(0)
             active_locs.pop(0)
+        else:
+            break
     
     
     if has_article[0] == True:
@@ -264,3 +264,20 @@ def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, a
         return False
     
     
+def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):
+    print('DEBUGGING INPUT:')
+    print('>>> Raw Parts: ' + str(raw_parts))
+    print('>>> Number of raw words: ' + str(raw_word_count))
+    print('>>> Fixed Parts: ' + str(fixed_parts))
+    print('>>> Number of fixed words: ' + str(fixed_word_count))
+    print('>>> Active actions: ' + str(active_actions))
+    print('>>> Number of active actions: ' + str(num_actv_actions))
+    print('>>> Active articles: ' + str(active_arts))
+    print('>>> Active locations: ' + str(active_locs))
+    print('>>> Active objects: ' + str(active_objs))
+    print('##########################################')
+    print('>>> Command Result:')
+    print('##########################################')
+
+
+
