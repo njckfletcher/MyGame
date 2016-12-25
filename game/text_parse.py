@@ -101,8 +101,8 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
                 
                 
     ##########################################
-    # DEBUG Overall Input
-    debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs)
+    # DEBUGGING COMMAND METHOD
+    #debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs)
     
     
     # Running possibilities based on number of actions called
@@ -116,8 +116,7 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
         if int(active_actions[1] + 1) in active_arts:
             has_article[0] = True
             has_article.append(int(active_actions[1] + 1))
-        # DEBUGGING
-        #print('>>> Does ' + str(active_actions[0]) + ' have an article?: ' + str(has_article))
+            
         
         # Check for direct object
         if has_article[0] == True:
@@ -128,8 +127,12 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
             if (int(active_actions[1] + 1) in active_objs) or (int(active_actions[1] + 1) in active_locs):
                 has_dir_obj[0] = True
                 has_dir_obj.append(int(active_actions[1] + 1))
-        # DEBUGGING
-        #print('>>> Does ' + str(active_actions[0]) + ' have a direct object?: ' + str(has_dir_obj))
+                
+        
+        ##########################################
+        # DEBUGGING PER ACTION METHOD:        
+        #debug_arts_objs(active_actions, has_article, has_dir_obj)
+               
                
         if active_actions[0] == 'health':
             player.display_health()
@@ -260,6 +263,7 @@ def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, a
     
     
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):
+    print('##########################################')
     print('DEBUGGING INPUT:')
     print('>>> Raw Parts: ' + str(raw_parts))
     print('>>> Number of raw words: ' + str(raw_word_count))
@@ -271,8 +275,11 @@ def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, acti
     print('>>> Active locations: ' + str(active_locs))
     print('>>> Active objects: ' + str(active_objs))
     print('##########################################')
-    print('>>> Command Result:')
+    
+
+def debug_arts_objs(active_actions, has_article, has_dir_obj):
     print('##########################################')
-
-
-
+    print('DEBUGGING PER ACTION:')
+    print('>>> Does ' + str(active_actions[0]) + ' have an article?: ' + str(has_article))
+    print('>>> Does ' + str(active_actions[0]) + ' have a direct object?: ' + str(has_dir_obj))
+    print('##########################################')
