@@ -38,8 +38,17 @@ while running:
     
     map_objects = {'lab': game_objects.Lab(), 'dorm': game_objects.Dorm(), 'room': game_objects.Room()}
     
+    item_objects = {'phone' : game_objects.Phone()}
+    
     while command_in_progress:
         print('------------------------------------------')
-        text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], hero, hero.location, map_objects.get(hero.location), map_objects)
-
+        text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 
+                                 hero, 
+                                 hero.location,  
+                                 map_objects,
+                                 item_objects)
+    
+    
+    
+    
     

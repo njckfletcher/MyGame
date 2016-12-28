@@ -49,6 +49,10 @@ class Player:
     def display_inventory(self):
         print('Inventory: ' + str(self.inventory))
         
+    
+    def get_inventory(self):
+        return self.inventory
+        
         
     def add_item(self, item, action):
         self.inventory.append(item)
@@ -70,7 +74,6 @@ class Player:
         
         
 class Environment:
-    active_envi = None
     name = None
     inventory = []
     
@@ -89,10 +92,7 @@ class Environment:
     
     def get_name(self):
         return self.name
-    
-    
-    def set_active_envi(self, location):
-        self.active_envi = location
+
     
 class Lab(Environment):
     name = 'lab'
@@ -107,4 +107,19 @@ class Dorm(Environment):
 class Room(Environment):
     name = 'room'
     pass
+
+
+class Item():
+    weight = 1
     
+    
+class Phone(Item):
+    
+    def use(self):
+        active = True
+        
+        while active:
+            print('YOU ARE USING THIS PHONE LOLOLOL')
+            active = False
+
+

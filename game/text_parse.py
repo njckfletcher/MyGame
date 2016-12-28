@@ -7,7 +7,11 @@ Created on Dec 21, 2016
 #from game import main
 
 # Text parse method
-def parse_command(prompt, player, current_loc, envi, map_objects):
+def parse_command(prompt, 
+                  player, 
+                  current_loc, 
+                  map_objects, 
+                  item_objects):
     # Parser input call and variables
     raw_command = input(prompt).lower()
     print('------------------------------------------')
@@ -33,7 +37,8 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
                "change",
                "stats",
                "status",
-               "info"]
+               "info",
+               "use"]
     active_actions = []
     
     arts = ["a",
@@ -109,6 +114,10 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
     for i in range(num_actv_actions):
         current_loc = player.get_location()
         envi = map_objects.get(player.location)
+        if active_objs != []:
+            current_item = item_objects.get(active_objs[0])
+        else:
+            current_item = None
         has_article = [False]
         has_dir_obj = [False]
         
@@ -162,6 +171,8 @@ def parse_command(prompt, player, current_loc, envi, map_objects):
             location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player)
         elif active_actions[0] == 'take' or active_actions[0] == 'grab' or active_actions[0] == 'pickup' or active_actions[0] == 'pick':
             item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi)
+        elif active_actions[0] == 'use':
+            use_item(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi, current_item)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -209,7 +220,7 @@ def location_handle(active_actions, has_article, has_dir_obj, active_locs, activ
 # Location handling method
 def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
     
-    # Handles issue of removing locations from active_objs list when no action appears before it
+    # Handles issue of removing items from active_objs list when no action appears before it
     while active_objs != []:
         if active_actions[1] > active_objs[1]:
             active_objs.pop(0)
@@ -261,7 +272,55 @@ def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, a
     else:
         return False
     
+
+def use_item(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi, current_item):
     
+    # Handles issue of removing items from active_objs list when no action appears before it
+    while active_objs != []:
+        if active_actions[1] > active_objs[1]:
+            active_objs.pop(0)
+            active_objs.pop(0)
+        else:
+            break
+        
+        
+    if has_article[0] == True:
+        if has_dir_obj[0] == True:
+            if is_item_in_inventory(active_objs, player):
+                current_item.use()
+                #print('Used the item..')
+                return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            else:
+                print('>>> You dont have a ' + str(active_objs[0]))
+        else:
+            print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
+                
+                
+    else:
+        if has_dir_obj[0] == True:
+            if is_item_in_inventory(active_objs, player):
+                current_item.use()
+                #print('Used item..')
+                return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0)
+            else:
+                print('>>> You dont have a ' + str(active_objs[0]))
+        else:
+            print(str(active_actions[0]) + ' what?')
+            
+            
+    return active_actions.pop(0), active_actions.pop(0)
+
+
+def is_item_in_inventory(active_objs, player):
+    
+    if active_objs[0] in player.get_inventory():
+        #print('Player has item')
+        return True
+    else:
+        #print('Player does not have item')
+        return False
+
+
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):
     print('##########################################')
     print('DEBUGGING INPUT:')
