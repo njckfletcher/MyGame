@@ -11,6 +11,6 @@ def intro():
     print('health\nlocation\ninventory\nname\ngo, goto, move\ntake, grab, pickup\nstats, status, info\nclear')
     print('')
     print('Current locations: ')
-    print('lab (default)\nroom\ndorm')
+    print('lab (default)\nroom\ndorm\nclub')
     print('')
     print('The lab contains a phone.  Try taking it.')

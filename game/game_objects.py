@@ -109,6 +109,11 @@ class Room(Environment):
     pass
 
 
+class Club(Environment):
+    name = 'club'
+    pass
+
+
 class Item():
     weight = 1
     
@@ -117,9 +122,19 @@ class Phone(Item):
     
     def use(self):
         active = True
+        password = 'P@ssword'
         
         while active:
-            print('YOU ARE USING THIS PHONE LOLOLOL')
-            active = False
+            decision = input('Enter your passcode: ')
+            
+            if decision == password:
+                print('You unlocked the phone!')
+                print('Now leaving the phone..')
+                active = False
+            elif decision == 'exit':
+                active = False
+            else:
+                print('You entered the wrong password')
+            #active = False
 
 

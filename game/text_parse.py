@@ -48,7 +48,8 @@ def parse_command(prompt,
     
     locations = ['lab', 
                  'room', 
-                 'dorm']
+                 'dorm',
+                 'club']
     active_locs = []
     
     objs = ['phone']
