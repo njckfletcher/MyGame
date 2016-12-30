@@ -24,7 +24,7 @@ while running:
     decision = input('Would you like to load a save?').lower()
     
     if decision == 'y' or decision == 'yes' or decision == 'yea':
-        load_game('savefile.dat')
+        loadin('savefile.dat')
     
     # Retrieving player name
     name_set = False

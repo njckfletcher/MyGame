@@ -8,11 +8,12 @@ from game.game_defs import print_by_char
 class Player:
     health = 100
     location = 'lab'
-    inventory = []
+    
     weight = 0
     
     def __init__(self, name):
         self.name = name
+        self.inventory = []
         
         
     def display_health(self):
@@ -97,7 +98,9 @@ class Environment:
     
 class Lab(Environment):
     name = 'lab'
-    inventory = ['phone']
+    
+    def __init__(self):
+        self.inventory = ['phone']
     
     
 class Dorm(Environment):
