@@ -3,14 +3,24 @@ Created on Dec 21, 2016
 
 @author: Hunter Malm
 '''
+import sys, time
 
 def intro():
-    print('Welcome to the game.')
-    print('------------------------------------------')
-    print('Currently working commands: ')
-    print('health\nlocation\ninventory\nname\ngo, goto, move\ntake, grab, pickup\nstats, status, info\nclear')
-    print('')
-    print('Current locations: ')
-    print('lab (default)\nroom\ndorm\nclub')
-    print('')
-    print('The lab contains a phone.  Try taking it.')
+    time.sleep(1)
+    print_by_char('------------------------------------------', 0.01)
+    time.sleep(1)
+    sys.stdout.write('                ')
+    print_by_char('7 Stories', 0.05)
+    time.sleep(1)
+    print_by_char("A Hacker's Ambition to Destroy the Internet", 0.05)
+    
+    
+
+def print_by_char(text, sec, newline=True):
+    if newline:
+        text = text + '\n' 
+    
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(sec)

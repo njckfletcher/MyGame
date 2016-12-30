@@ -5,6 +5,7 @@ Created on Dec 21, 2016
 '''
 import game_objects, text_parse, game_defs
 import random
+import pickle
 
 # System objects
 running = True
@@ -36,7 +37,7 @@ while running:
     # Creating main player
     hero = game_objects.Player(name)
     
-    map_objects = {'lab': game_objects.Lab(), 'dorm': game_objects.Dorm(), 'room': game_objects.Room()}
+    map_objects = {'lab': game_objects.Lab(), 'dorm': game_objects.Dorm(), 'room': game_objects.Room(), 'club': game_objects.Club()}
     
     item_objects = {'phone' : game_objects.Phone()}
     
@@ -47,8 +48,7 @@ while running:
                                  hero.location,  
                                  map_objects,
                                  item_objects)
-    
-    
+
     
     
     

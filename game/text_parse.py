@@ -5,6 +5,8 @@ Created on Dec 21, 2016
 '''
 
 #from game import main
+import pickle
+from game.game_defs import print_by_char
 
 # Text parse method
 def parse_command(prompt, 
@@ -13,7 +15,8 @@ def parse_command(prompt,
                   map_objects, 
                   item_objects):
     # Parser input call and variables
-    raw_command = input(prompt).lower()
+    print_by_char(prompt, 0.01, False)
+    raw_command = input().lower()
     print('------------------------------------------')
     raw_parts = raw_command.split()
     raw_word_count = len(raw_parts)
@@ -38,7 +41,8 @@ def parse_command(prompt,
                "stats",
                "status",
                "info",
-               "use"]
+               "use",
+               "save"]
     active_actions = []
     
     arts = ["a",
@@ -179,12 +183,16 @@ def parse_command(prompt,
                 print('')
             active_actions.pop(0)
             active_actions.pop(0)
+        elif active_actions[0] == 'save':
+            save_game(player, map_objects, item_objects)
+            active_actions.pop(0)
+            active_actions.pop(0)
         else:
-            print('Action not ready!')
+            print_by_char('Action not ready!', 0.01)
                     
                     
     if num_actv_actions == 0:
-        print('Invalid command!')
+        print_by_char('Invalid command!', 0.01)
     
 
 # Location handling method
@@ -205,15 +213,15 @@ def location_handle(active_actions, has_article, has_dir_obj, active_locs, activ
             return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
         else:
             if active_actions[0] == 'goto':
-                print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
+                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
             else:
-                print(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?')
+                print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
     else:
         if has_dir_obj[0] == True:
             player.set_location(active_locs[0])
             return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0)
         else:
-            print(str(active_actions[0]) + ' where?')
+            print_by_char(str(active_actions[0]) + ' where?', 0.01)
            
     return active_actions.pop(0), active_actions.pop(0)
 
@@ -237,12 +245,12 @@ def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_ar
                 player.add_item(active_objs[0], active_actions[0])
                 return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
             else:
-                print('>>> There is no ' + str(active_objs[0]) + ' here')
+                print_by_char('>>> There is no ' + str(active_objs[0]) + ' here', 0.01)
         else:
             if active_actions[0] == 'pick':
-                print(str(active_actions[0]) + ' up ' + str(active_arts[0]) + ' what?')
+                print_by_char(str(active_actions[0]) + ' up ' + str(active_arts[0]) + ' what?', 0.01)
             else:
-                print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
+                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
                 
                 
     else:
@@ -252,12 +260,12 @@ def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_ar
                 player.add_item(active_objs[0], active_actions[0])
                 return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0)
             else:
-                print('>>> There is no ' + str(active_objs[0]) + ' here')
+                print_by_char('>>> There is no ' + str(active_objs[0]) + ' here', 0.01)
         else:
             if active_actions[0] == 'pick':
-                print(str(active_actions[0]) + ' up what?')
+                print_by_char(str(active_actions[0]) + ' up what?', 0.01)
             else:
-                print(str(active_actions[0]) + ' what?')
+                print_by_char(str(active_actions[0]) + ' what?', 0.01)
             
             
     return active_actions.pop(0), active_actions.pop(0)
@@ -320,6 +328,11 @@ def is_item_in_inventory(active_objs, player):
     else:
         #print('Player does not have item')
         return False
+    
+
+def save_game(player, map_objects, item_objects):
+    with open('savefile.dat', 'wb') as f:
+        pickle.dump([player, map_objects, item_objects], f)
 
 
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):

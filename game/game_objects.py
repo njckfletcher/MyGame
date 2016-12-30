@@ -3,6 +3,7 @@ Created on Dec 21, 2016
 
 @author: Hunter Malm
 '''
+from game.game_defs import print_by_char
 
 class Player:
     health = 100
@@ -15,19 +16,19 @@ class Player:
         
         
     def display_health(self):
-        print('Health: ' + str(self.health) + '%')
+        print_by_char('Health: ' + str(self.health) + '%', 0.01)
         
         
     def display_location(self):
-        print('Location: ' + str(self.location))
+        print_by_char('Location: ' + str(self.location), 0.01)
         
         
     def set_location(self, location):
         if self.location == location:
-            print('>>> ' + str(self.name) + ' is already at the ' + str(location))
+            print_by_char('>>> ' + str(self.name) + ' is already at the ' + str(location), 0.01)
         else:
             self.location = location
-            print('>>> ' + str(self.name) + ' moved to the ' + str(location))
+            print_by_char('>>> ' + str(self.name) + ' moved to the ' + str(location), 0.01)
             
             
     def get_location(self):
@@ -35,7 +36,7 @@ class Player:
     
     
     def display_weight(self):
-        print('Weight: ' + str(self.weight))
+        print_by_char('Weight: ' + str(self.weight), 0.01)
         
         
     def set_name(self, name):
@@ -43,11 +44,11 @@ class Player:
     
     
     def display_name(self):
-        print('Name: ' + str(self.name))
+        print_by_char('Name: ' + str(self.name), 0.01)
         
         
     def display_inventory(self):
-        print('Inventory: ' + str(self.inventory))
+        print_by_char('Inventory: ' + str(self.inventory), 0.01)
         
     
     def get_inventory(self):
@@ -57,11 +58,11 @@ class Player:
     def add_item(self, item, action):
         self.inventory.append(item)
         if action == 'take':
-            print('>>> ' + str(self.name) + ' took the ' + str(item))
+            print_by_char('>>> ' + str(self.name) + ' took the ' + str(item), 0.01)
         elif action == 'pick' or action == 'pickup':
-            print('>>> ' + str(self.name) + ' picked up the ' + str(item))
+            print_by_char('>>> ' + str(self.name) + ' picked up the ' + str(item), 0.01)
         else:
-            print('>>> ' + str(self.name) + ' grabbed the ' + str(item))
+            print_by_char('>>> ' + str(self.name) + ' grabbed the ' + str(item), 0.01)
         
         
         
