@@ -21,6 +21,11 @@ while running:
 
     game_defs.intro()
     
+    decision = input('Would you like to load a save?').lower()
+    
+    if decision == 'y' or decision == 'yes' or decision == 'yea':
+        load_game('savefile.dat')
+    
     # Retrieving player name
     name_set = False
     while name_set is False:
@@ -41,6 +46,10 @@ while running:
     
     item_objects = {'phone' : game_objects.Phone()}
     
+    print('loading old save..')
+    with open('savefile.dat', 'rb') as f:
+        hero, map_objects, item_objects = pickle.load(f)
+    
     while command_in_progress:
         print('------------------------------------------')
         text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 
@@ -50,5 +59,7 @@ while running:
                                  item_objects)
 
     
-    
+def loadin(file):
+    with open(file, 'rb') as f:
+        hero, map_objects, item_objects = pickle.load(f) 
     

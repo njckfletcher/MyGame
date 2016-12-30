@@ -3,7 +3,7 @@ Created on Dec 21, 2016
 
 @author: Hunter Malm
 '''
-import sys, time
+import sys, time, pickle
 
 def intro():
     time.sleep(1)
@@ -24,3 +24,7 @@ def print_by_char(text, sec, newline=True):
         sys.stdout.write(char)
         sys.stdout.flush()
         time.sleep(sec)
+
+def loadin(file):
+    with open(file, 'rb') as f:
+        hero, map_objects, item_objects = pickle.load(f) 

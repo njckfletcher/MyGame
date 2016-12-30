@@ -332,7 +332,7 @@ def is_item_in_inventory(active_objs, player):
 
 def save_game(player, map_objects, item_objects):
     with open('savefile.dat', 'wb') as f:
-        pickle.dump([player, map_objects, item_objects], f)
+        pickle.dump([player, map_objects, item_objects], f, protocol=4)
 
 
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):
