@@ -7,6 +7,7 @@ Created on Dec 21, 2016
 #from game import main
 import pickle
 from game_defs import print_by_char
+from game_defs import save_game
 
 # Text parse method
 def parse_command(prompt, 
@@ -42,7 +43,8 @@ def parse_command(prompt,
                "status",
                "info",
                "use",
-               "save"]
+               "save",
+               "quit"]
     active_actions = []
     
     arts = ["a",
@@ -187,6 +189,10 @@ def parse_command(prompt,
             save_game(player, map_objects, item_objects)
             active_actions.pop(0)
             active_actions.pop(0)
+        elif active_actions[0] == 'quit':
+            return 'quit'
+            active_actions.pop(0)
+            active_actions.pop(0)
         else:
             print_by_char('Action not ready!', 0.01)
                     
@@ -328,11 +334,6 @@ def is_item_in_inventory(active_objs, player):
     else:
         #print('Player does not have item')
         return False
-    
-
-def save_game(player, map_objects, item_objects):
-    with open('savefile.dat', 'wb') as f:
-        pickle.dump([player, map_objects, item_objects], f, protocol=4)
 
 
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):

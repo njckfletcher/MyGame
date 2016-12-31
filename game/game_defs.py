@@ -4,6 +4,7 @@ Created on Dec 21, 2016
 @author: Hunter Malm
 '''
 import sys, time, pickle, os
+import random
 
 def intro():
     time.sleep(1)
@@ -25,40 +26,100 @@ def print_by_char(text, sec, newline=True):
         sys.stdout.write(char)
         sys.stdout.flush()
         time.sleep(sec)
-
-def loadin(file):
-    with open(file, 'rb') as f:
-        hero, map_objects, item_objects = pickle.load(f) 
         
 
 def load_option():
     
-    cwd = os.getcwd() + "\saves"
+    while True:
+        cwd = os.getcwd() + "\saves\\"
+        save_exists = False
+        
+        char_names = []
+        char_dict = {}
+        
+        counter = 1
+        for file in os.listdir(cwd):
+            if file.endswith(".dat"):
+                save_exists = True
+                
+                with open(cwd + '\\' + file, 'rb') as f:
+                    hero, map_objects, item_objects = pickle.load(f)
+                    char_names.append(hero.get_name())
+                    char_dict[str(counter)] = hero.get_name()
+                    counter += 1
+        
+        if not save_exists:
+            create_char(cwd)
+            continue
     
-    save_exists = False
     
-    char_names = []
-    
-    for file in os.listdir(cwd):
-        if file.endswith(".dat"):
-            save_exists = True
+        print_by_char("Your Characters:", 0.01)
             
-            with open(cwd + '\\' + file, 'rb') as f:
-                hero, map_objects, item_objects = pickle.load(f)
-                #hero = pickle.load(f)
-                char_names.append(hero.get_name())
+        for num in range(len(char_names)):
+            print_by_char(">> "+ str(num + 1) + ": " + char_names[num], 0.01)
+                
+                
+        print_by_char('------------------------------------------', 0.01)
+        print_by_char('Enter character number or use "new" to', 0.01)
+        print_by_char('create a new one.  To remove a character,', 0.01)
+        print_by_char('use "delete #" with the number of the', 0.01)
+        print_by_char('character you want to delete.', 0.01)
+            
+        while True:    
+            print_by_char('------------------------------------------', 0.01)
+            print_by_char('Character: ', 0.01, False)
+            decision = input().lower()
+            
+            parts = decision.split()
+            
+            chars_modified = False
+            
+            for part in parts:
+                if part == "delete" or part == "remove" or part == "erase":
+                    if len(parts) > parts.index(part) + 1:
+                        if parts[parts.index(part) + 1] in char_dict:
+                            print('------------------------------------------')
+                            if part == "delete":
+                                print_by_char('Deleted ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.01)
+                            elif part == "remove":
+                                print_by_char('Removed ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.01)
+                            else:
+                                print_by_char('Erased ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.01)
+                            remove_char(char_dict[parts[parts.index(part) + 1]], cwd)
+                            char_names.remove(char_dict[parts[parts.index(part) + 1]])
+                            del char_dict[parts[parts.index(part) + 1]]
+                            chars_modified = True
+                            break
+                        else:
+                            print('------------------------------------------')
+                            print_by_char('You must provide a character to ' + part + '.', 0.01)
+                            break
+                    else:
+                        print('------------------------------------------')
+                        print_by_char('You must provide a character to ' + part + '.', 0.01)
+                        break
+                elif part == "new":
+                    return create_char(cwd)
+                elif part in char_dict:
+                    print('------------------------------------------')
+                    print_by_char('Loaded ' + char_dict[part] + '.', 0.01)
+                    return char_dict[part]
+                else:
+                    print_by_char('Invalid command!', 0.01)
+                    break
+                
+            if not parts:
+                print_by_char('>>> You must enter something!', 0.01)
+                
+            if chars_modified == True:
+                break
     
-    if not save_exists:
-        create_char()
     
-    print_by_char("Your Characters:", 0.01, True)
-    
-    for num in range(len(char_names)):
-        print_by_char(">> "+ str(num + 1) + ": " + char_names[num], 0.01, True)
-    
+def remove_char(char, cwd):
+    return os.remove(cwd + char + '.dat')
 
-def create_char():
-    cwd = os.getcwd() + "\saves"
+
+def create_char(cwd):
     name_set = False
     
     while name_set is False:
@@ -69,7 +130,7 @@ def create_char():
             if file.endswith(".dat"):
                 if name + ".dat" == file:
                     print("This name is already taken")
-                    continue
+                    break
         
         if len(name) > 20:
             print('------------------------------------------')
@@ -77,12 +138,28 @@ def create_char():
             print('Try again..')
         else:
             name_set = True
-            
-        return name
+        
+        
+    init_char(name, cwd)        
+    return name
     
+
+def init_char(name, cwd):
+    from game_objects import Player, Lab, Dorm, Room, Club, Phone
+    # Creating main player
+    player = Player(name)
+    
+    map_objects = {'lab': Lab(), 'dorm': Dorm(), 'room': Room(), 'club': Club()}
+    
+    item_objects = {'phone' : Phone()}
+    
+    with open(cwd + name + '.dat', 'wb') as f:
+        pickle.dump([player, map_objects, item_objects], f, protocol=4)
+
     
 def save_game(player, map_objects, item_objects):
+    cwd = os.getcwd() + "\saves\\"
     
-    with open(player.get_name + '.dat', 'wb') as f:
+    with open(cwd + player.get_name() + '.dat', 'wb') as f:
         pickle.dump([player, map_objects, item_objects], f, protocol=4)
             

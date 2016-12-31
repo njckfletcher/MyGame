@@ -3,63 +3,54 @@ Created on Dec 21, 2016
 
 @author: Hunter Malm
 '''
-import game_objects, text_parse, game_defs
+import game_defs, game_objects, text_parse
+import os
 import random
 import pickle
+from game_defs import print_by_char
 
 # System objects
+cwd = os.getcwd()
 running = True
+command_in_progress = True
 system_prompts = ["What do you want to do?: ", 
                   "What now?: ", 
                   "What would you like to do next?: ", 
                   "Enter your command(s): "]
-command_in_progress = True
 
-
-# Game start
-while running:
-
-    game_defs.intro()
-    
-    decision = input('Would you like to load a save?').lower()
-    
-    if decision == 'y' or decision == 'yes' or decision == 'yea':
-        loadin('savefile.dat')
-    
-    # Retrieving player name
-    name_set = False
-    while name_set is False:
-        print('------------------------------------------')
-        name = input('Enter your name: ')
+game_defs.intro()
         
-        if len(name) > 20:
-            print('------------------------------------------')
-            print('Max amount of characters: 20')
-            print('Try again..')
-        else:
-            name_set = True
-            
-    # Creating main player
-    hero = game_objects.Player(name)
-    
-    map_objects = {'lab': game_objects.Lab(), 'dorm': game_objects.Dorm(), 'room': game_objects.Room(), 'club': game_objects.Club()}
-    
-    item_objects = {'phone' : game_objects.Phone()}
-    
-    #print('loading old save..')
-    #with open('savefile.dat', 'rb') as f:
-    #    hero, map_objects, item_objects = pickle.load(f)
-    
+with open(cwd + '\saves\\' + game_defs.load_option() + '.dat', 'rb') as f:
+    hero, map_objects, item_objects = pickle.load(f)
+        
+# Game start
+while running:            
     while command_in_progress:
         print('------------------------------------------')
-        text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 
+        arg = text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 
                                  hero, 
                                  hero.location,  
                                  map_objects,
                                  item_objects)
-
+        
+        if arg == 'quit':
+            command_in_progress = False
     
-def loadin(file):
-    with open(file, 'rb') as f:
-        hero, map_objects, item_objects = pickle.load(f) 
     
+    
+    while not command_in_progress:
+        print('------------------------------------------')
+        
+        print_by_char('Would you like to save before quitting (y or n): ', 0.01, False)
+        decision = input().lower()
+        
+        if decision == "y" or decision == "yes":
+            game_defs.save_game(hero, map_objects, item_objects)
+            break
+        elif decision == "n" or decision == "no":
+            break
+        else:
+            print('------------------------------------------')
+            print_by_char('Invalid command!', 0.01)
+            
+    break
