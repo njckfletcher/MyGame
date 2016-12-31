@@ -3,7 +3,7 @@ Created on Dec 21, 2016
 
 @author: Hunter Malm
 '''
-from game.game_defs import print_by_char
+from game_defs import print_by_char
 
 class Player:
     health = 100
@@ -46,6 +46,10 @@ class Player:
     
     def display_name(self):
         print_by_char('Name: ' + str(self.name), 0.01)
+        
+    
+    def get_name(self):
+        return self.name
         
         
     def display_inventory(self):

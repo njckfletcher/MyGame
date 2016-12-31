@@ -46,9 +46,9 @@ while running:
     
     item_objects = {'phone' : game_objects.Phone()}
     
-    print('loading old save..')
-    with open('savefile.dat', 'rb') as f:
-        hero, map_objects, item_objects = pickle.load(f)
+    #print('loading old save..')
+    #with open('savefile.dat', 'rb') as f:
+    #    hero, map_objects, item_objects = pickle.load(f)
     
     while command_in_progress:
         print('------------------------------------------')

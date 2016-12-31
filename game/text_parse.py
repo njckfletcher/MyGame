@@ -6,7 +6,7 @@ Created on Dec 21, 2016
 
 #from game import main
 import pickle
-from game.game_defs import print_by_char
+from game_defs import print_by_char
 
 # Text parse method
 def parse_command(prompt, 
