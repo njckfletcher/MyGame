@@ -14,7 +14,8 @@ def parse_command(prompt,
                   player, 
                   current_loc, 
                   map_objects, 
-                  item_objects):
+                  item_objects,
+                  saves_dir):
     # Parser input call and variables
     print_by_char(prompt, 0.01, False)
     raw_command = input().lower()
@@ -186,7 +187,7 @@ def parse_command(prompt,
             active_actions.pop(0)
             active_actions.pop(0)
         elif active_actions[0] == 'save':
-            save_game(player, map_objects, item_objects)
+            save_game(player, map_objects, item_objects, saves_dir)
             active_actions.pop(0)
             active_actions.pop(0)
         elif active_actions[0] == 'quit':

@@ -28,29 +28,30 @@ def print_by_char(text, sec, newline=True):
         time.sleep(sec)
         
 
-def load_option():
+def load_option(saves_dir):
     
     while True:
-        cwd = os.getcwd() + "\saves\\"
+        #WINDOWS: cwd = os.getcwd() + "\saves\\"
+        #LINUX: cwd = os.getcwd() + "/saves/"
         save_exists = False
         
         char_names = []
         char_dict = {}
         
         counter = 1
-        for file in os.listdir(cwd):
+        for file in os.listdir(saves_dir):
             if file.endswith(".dat"):
                 save_exists = True
                 
-                with open(cwd + '\\' + file, 'rb') as f:
+                #with open(cwd + '\\' + file, 'rb') as f:
+                with open(saves_dir + file, 'rb') as f:
                     hero, map_objects, item_objects = pickle.load(f)
                     char_names.append(hero.get_name())
                     char_dict[str(counter)] = hero.get_name()
                     counter += 1
         
         if not save_exists:
-            create_char(cwd)
-            continue
+            return create_char(saves_dir)
     
     
         print_by_char("Your Characters:", 0.01)
@@ -66,7 +67,8 @@ def load_option():
         print_by_char('character you want to delete.', 0.01)
             
         while True:    
-            print_by_char('------------------------------------------', 0.01)
+            #print_by_char('------------------------------------------', 0.01)
+            print('------------------------------------------')
             print_by_char('Character: ', 0.01, False)
             decision = input().lower()
             
@@ -85,10 +87,11 @@ def load_option():
                                 print_by_char('Removed ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.01)
                             else:
                                 print_by_char('Erased ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.01)
-                            remove_char(char_dict[parts[parts.index(part) + 1]], cwd)
+                            remove_char(char_dict[parts[parts.index(part) + 1]], saves_dir)
                             char_names.remove(char_dict[parts[parts.index(part) + 1]])
                             del char_dict[parts[parts.index(part) + 1]]
                             chars_modified = True
+                            print('------------------------------------------')
                             break
                         else:
                             print('------------------------------------------')
@@ -99,12 +102,13 @@ def load_option():
                         print_by_char('You must provide a character to ' + part + '.', 0.01)
                         break
                 elif part == "new":
-                    return create_char(cwd)
+                    return create_char(saves_dir)
                 elif part in char_dict:
                     print('------------------------------------------')
                     print_by_char('Loaded ' + char_dict[part] + '.', 0.01)
                     return char_dict[part]
                 else:
+                    print('------------------------------------------')
                     print_by_char('Invalid command!', 0.01)
                     break
                 
@@ -115,18 +119,18 @@ def load_option():
                 break
     
     
-def remove_char(char, cwd):
-    return os.remove(cwd + char + '.dat')
+def remove_char(char, saves_dir):
+    return os.remove(saves_dir + char + '.dat')
 
 
-def create_char(cwd):
+def create_char(saves_dir):
     name_set = False
     
     while name_set is False:
         print('------------------------------------------')
         name = input('Enter your name: ')
         
-        for file in os.listdir(cwd):
+        for file in os.listdir(saves_dir):
             if file.endswith(".dat"):
                 if name + ".dat" == file:
                     print("This name is already taken")
@@ -140,11 +144,11 @@ def create_char(cwd):
             name_set = True
         
         
-    init_char(name, cwd)        
+    init_char(name, saves_dir)        
     return name
     
 
-def init_char(name, cwd):
+def init_char(name, saves_dir):
     from game_objects import Player, Lab, Dorm, Room, Club, Phone
     # Creating main player
     player = Player(name)
@@ -153,13 +157,14 @@ def init_char(name, cwd):
     
     item_objects = {'phone' : Phone()}
     
-    with open(cwd + name + '.dat', 'wb') as f:
+    with open(saves_dir + name + '.dat', 'wb') as f:
         pickle.dump([player, map_objects, item_objects], f, protocol=4)
 
     
-def save_game(player, map_objects, item_objects):
-    cwd = os.getcwd() + "\saves\\"
+def save_game(player, map_objects, item_objects, saves_dir):
     
-    with open(cwd + player.get_name() + '.dat', 'wb') as f:
+    with open(saves_dir + player.get_name() + '.dat', 'wb') as f:
         pickle.dump([player, map_objects, item_objects], f, protocol=4)
+        
+    print_by_char('Saved ' + player.get_name() + '.', 0.01)
             

@@ -10,7 +10,12 @@ import pickle
 from game_defs import print_by_char
 
 # System objects
-cwd = os.getcwd()
+if os.name == 'posix':
+    saves_dir = os.getcwd() + "/saves/"
+else:
+    saves_dir = os.getcwd() + "\save\\"
+
+#cwd = os.getcwd()
 running = True
 command_in_progress = True
 system_prompts = ["What do you want to do?: ", 
@@ -18,9 +23,10 @@ system_prompts = ["What do you want to do?: ",
                   "What would you like to do next?: ", 
                   "Enter your command(s): "]
 
-game_defs.intro()
+#game_defs.intro()
         
-with open(cwd + '\saves\\' + game_defs.load_option() + '.dat', 'rb') as f:
+# WINDOWS: with open(cwd + '\saves\\' + game_defs.load_option() + '.dat', 'rb') as f:
+with open(saves_dir + game_defs.load_option(saves_dir) + '.dat', 'rb') as f:
     hero, map_objects, item_objects = pickle.load(f)
         
 # Game start
@@ -31,9 +37,11 @@ while running:
                                  hero, 
                                  hero.location,  
                                  map_objects,
-                                 item_objects)
+                                 item_objects,
+                                 saves_dir)
         
         if arg == 'quit':
+            print_by_char('Quitting..', 0.01)
             command_in_progress = False
     
     
@@ -41,11 +49,12 @@ while running:
     while not command_in_progress:
         print('------------------------------------------')
         
-        print_by_char('Would you like to save before quitting (y or n): ', 0.01, False)
+        print_by_char('Would you like to save before quitting (y\\n): ', 0.01, False)
         decision = input().lower()
         
         if decision == "y" or decision == "yes":
-            game_defs.save_game(hero, map_objects, item_objects)
+            print('------------------------------------------')
+            game_defs.save_game(hero, map_objects, item_objects, saves_dir)
             break
         elif decision == "n" or decision == "no":
             break
