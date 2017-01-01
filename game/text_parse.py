@@ -59,7 +59,8 @@ def parse_command(prompt,
                  'club']
     active_locs = []
     
-    objs = ['phone']
+    objs = ['phone',
+            'laptop']
     active_objs = []
     
     filter_words = ['to',

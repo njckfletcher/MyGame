@@ -13,9 +13,8 @@ from game_defs import print_by_char
 if os.name == 'posix':
     saves_dir = os.getcwd() + "/saves/"
 else:
-    saves_dir = os.getcwd() + "\save\\"
+    saves_dir = os.getcwd() + "\saves\\"
 
-#cwd = os.getcwd()
 running = True
 command_in_progress = True
 system_prompts = ["What do you want to do?: ", 
@@ -23,9 +22,8 @@ system_prompts = ["What do you want to do?: ",
                   "What would you like to do next?: ", 
                   "Enter your command(s): "]
 
-#game_defs.intro()
+game_defs.intro()
         
-# WINDOWS: with open(cwd + '\saves\\' + game_defs.load_option() + '.dat', 'rb') as f:
 with open(saves_dir + game_defs.load_option(saves_dir) + '.dat', 'rb') as f:
     hero, map_objects, item_objects = pickle.load(f)
         

@@ -13,7 +13,7 @@ class Player:
     
     def __init__(self, name):
         self.name = name
-        self.inventory = []
+        self.inventory = ['laptop']
         
         
     def display_health(self):
@@ -145,4 +145,26 @@ class Phone(Item):
                 print('You entered the wrong password')
             #active = False
 
-
+class Laptop(Item):
+    
+    username = None
+    password = None
+    
+    def __init__(self, un, pw):
+        self.password = pw
+        self.username = un
+    
+        
+    def use(self):
+        active = True
+        
+        while active:
+            print('Welcome ' + self.username)
+            inp = input('Please enter your password: ')
+            
+            if inp == self.password:
+                print('You unlocked the computer!')
+                print('Now quitting.. ')
+                active = False
+            else:
+                print('Wrong password!')

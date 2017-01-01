@@ -5,6 +5,7 @@ Created on Dec 21, 2016
 '''
 import sys, time, pickle, os
 import random
+import getpass
 
 def intro():
     time.sleep(1)
@@ -31,8 +32,6 @@ def print_by_char(text, sec, newline=True):
 def load_option(saves_dir):
     
     while True:
-        #WINDOWS: cwd = os.getcwd() + "\saves\\"
-        #LINUX: cwd = os.getcwd() + "/saves/"
         save_exists = False
         
         char_names = []
@@ -43,7 +42,6 @@ def load_option(saves_dir):
             if file.endswith(".dat"):
                 save_exists = True
                 
-                #with open(cwd + '\\' + file, 'rb') as f:
                 with open(saves_dir + file, 'rb') as f:
                     hero, map_objects, item_objects = pickle.load(f)
                     char_names.append(hero.get_name())
@@ -67,7 +65,6 @@ def load_option(saves_dir):
         print_by_char('character you want to delete.', 0.01)
             
         while True:    
-            #print_by_char('------------------------------------------', 0.01)
             print('------------------------------------------')
             print_by_char('Character: ', 0.01, False)
             decision = input().lower()
@@ -102,6 +99,7 @@ def load_option(saves_dir):
                         print_by_char('You must provide a character to ' + part + '.', 0.01)
                         break
                 elif part == "new":
+                    print('------------------------------------------')
                     return create_char(saves_dir)
                 elif part in char_dict:
                     print('------------------------------------------')
@@ -124,38 +122,88 @@ def remove_char(char, saves_dir):
 
 
 def create_char(saves_dir):
+    print_dots(3)
+    time.sleep(0.5)
+    print_by_char(' and like that.', 0.01)
+    time.sleep(1)
+    
+    print("")
+    
+    print_by_char('You spawn in outside the massive doors of', 0.01)
+    print_by_char('the Internet, a giant tower planted on a', 0.01)
+    print_by_char('floating rock in the night sky.  With no', 0.01)
+    print_by_char('direction, you pull out a laptop and power', 0.01)
+    print_by_char('it on.  The screen prompts you', 0.01, False)
+    print_dots(2)
+    print('\n------------------------------------------')
+    print_by_char('"You must create an account before you can', 0.01)
+    print_by_char('use the computer.', 0.01)
+    
+    print("")
+    
     name_set = False
+    password_set = False
     
     while name_set is False:
-        print('------------------------------------------')
-        name = input('Enter your name: ')
+        name_taken = False
+        name = input('Create a username: ')
         
         for file in os.listdir(saves_dir):
             if file.endswith(".dat"):
                 if name + ".dat" == file:
-                    print("This name is already taken")
+                    name_taken = True
+                    print('')
+                    print_by_char("> This name is already taken.", 0.01)
+                    print('')
                     break
         
-        if len(name) > 20:
-            print('------------------------------------------')
-            print('Max amount of characters: 20')
-            print('Try again..')
-        else:
+        if len(name) < 20 and not name_taken:
             name_set = True
+        elif len(name) > 20:
+            print('')
+            print_by_char('> Max amount of characters: 20', 0.01)
+            print_by_char('> Try again..', 0.01)
+            print('')
+    
+    while password_set is False:
+        password = input('Create a password: ')
         
+        retype = input('Re-enter password: ')
         
-    init_char(name, saves_dir)        
+        if password == retype:
+            password_set = True
+        else:
+            print('')
+            print_by_char('> Passwords do not match!', 0.01)
+            print('')
+        
+    
+    print("")
+    print_dots(3)
+    print_by_char(' Account created successfully."', 0.01)
+    init_char(name, password, saves_dir)
+    
+    print('------------------------------------------')
+    print_by_char('Your fate lies ahead.  Many things are', 0.01)
+    print_by_char('about to happen, so try your hardest to', 0.01)
+    print_by_char("pay attention.  Just don't forget that the", 0.01)
+    print_by_char('bottom is the key and the top is the goal.', 0.01)
+    print('------------------------------------------')
+    print_by_char("Press 'enter' to start your journey", 0.01, False)
+    print_dots(2)
+    getpass.getpass("")
+    
     return name
     
 
-def init_char(name, saves_dir):
-    from game_objects import Player, Lab, Dorm, Room, Club, Phone
+def init_char(name, password, saves_dir):
+    from game_objects import Player, Lab, Dorm, Room, Club, Phone, Laptop
     # Creating main player
     player = Player(name)
     
     map_objects = {'lab': Lab(), 'dorm': Dorm(), 'room': Room(), 'club': Club()}
     
-    item_objects = {'phone' : Phone()}
+    item_objects = {'phone' : Phone(), 'laptop' : Laptop(name, password)}
     
     with open(saves_dir + name + '.dat', 'wb') as f:
         pickle.dump([player, map_objects, item_objects], f, protocol=4)
@@ -167,4 +215,13 @@ def save_game(player, map_objects, item_objects, saves_dir):
         pickle.dump([player, map_objects, item_objects], f, protocol=4)
         
     print_by_char('Saved ' + player.get_name() + '.', 0.01)
+    
+    
+def print_dots(count, newline=False):
+    for i in range(0, count):
+        print_by_char('.', 0.01, False)
+        time.sleep(0.5)
+    
+    if newline:
+        print("\n")
             
