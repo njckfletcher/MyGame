@@ -146,7 +146,8 @@ def create_char(saves_dir):
     
     while name_set is False:
         name_taken = False
-        name = input('Create a username: ')
+        print_by_char('Create a username: ', 0.01, False)
+        name = input()
         
         for file in os.listdir(saves_dir):
             if file.endswith(".dat"):
@@ -166,9 +167,11 @@ def create_char(saves_dir):
             print('')
     
     while password_set is False:
-        password = input('Create a password: ')
+        print_by_char('Create a password: ', 0.01, False)
+        password = input()
         
-        retype = input('Re-enter password: ')
+        print_by_char('Re-enter password: ', 0.01, False)
+        retype = input()
         
         if password == retype:
             password_set = True
@@ -177,11 +180,14 @@ def create_char(saves_dir):
             print_by_char('> Passwords do not match!', 0.01)
             print('')
         
+    print_by_char('Password hint: ', 0.01, False)
+    pass_hint = input()
+    
     
     print("")
     print_dots(3)
     print_by_char(' Account created successfully."', 0.01)
-    init_char(name, password, saves_dir)
+    init_char(name, password, pass_hint, saves_dir)
     
     print('------------------------------------------')
     print_by_char('Your fate lies ahead.  Many things are', 0.01)
@@ -196,14 +202,14 @@ def create_char(saves_dir):
     return name
     
 
-def init_char(name, password, saves_dir):
+def init_char(name, password, pass_hint, saves_dir):
     from game_objects import Player, Lab, Dorm, Room, Club, Phone, Laptop
     # Creating main player
     player = Player(name)
     
     map_objects = {'lab': Lab(), 'dorm': Dorm(), 'room': Room(), 'club': Club()}
     
-    item_objects = {'phone' : Phone(), 'laptop' : Laptop(name, password)}
+    item_objects = {'phone' : Phone(), 'laptop' : Laptop(name, password, pass_hint)}
     
     with open(saves_dir + name + '.dat', 'wb') as f:
         pickle.dump([player, map_objects, item_objects], f, protocol=4)

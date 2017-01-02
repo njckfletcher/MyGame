@@ -149,17 +149,34 @@ class Laptop(Item):
     
     username = None
     password = None
+    pass_hint = None
     
-    def __init__(self, un, pw):
+    def __init__(self, un, pw, ph):
         self.password = pw
         self.username = un
+        self.pass_hint = ph
     
         
     def use(self):
-        active = True
         
+        active = True
         while active:
-            print('Welcome ' + self.username)
+            print_by_char('Welcome ' + self.username, 0.01)
+            
+            locked = True
+            while locked:
+                print_by_char('Please enter your password: ', 0.01, False)
+                response = input()
+                
+                if response == self.password:
+                    locked = False
+                    print('')
+                    print_by_char('Computer unlocked.')
+                    print('')
+                else:
+                    print('')
+                    
+                
             inp = input('Please enter your password: ')
             
             if inp == self.password:
