@@ -8,6 +8,7 @@ import os
 import random
 import pickle
 from game_defs import print_by_char
+import time
 
 # System objects
 if os.name == 'posix':
@@ -28,7 +29,15 @@ with open(saves_dir + game_defs.load_option(saves_dir) + '.dat', 'rb') as f:
     hero, map_objects, item_objects = pickle.load(f)
         
 # Game start
-while running:            
+while running:
+    print('------------------------------------------')
+    time.sleep(0.5)
+    game_defs.display_level(hero.level)
+    time.sleep(0.5)
+    print('\n------------------------------------------')
+    game_defs.display_prompt(map_objects[hero.location])
+        
+                    
     while command_in_progress:
         print('------------------------------------------')
         arg = text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 

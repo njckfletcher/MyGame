@@ -18,6 +18,39 @@ def intro():
     time.sleep(1)
     print_by_char('------------------------------------------', 0.01)
     
+    
+def display_level(level):
+    if level == 1:
+        sys.stdout.write('            ')
+        print_by_char('Level 1 : ', 0.01, False)
+        time.sleep(0.5)
+        print_by_char('Facebook', 0.01, False)
+        time.sleep(0.5)
+    if level == 2:
+        pass
+    if level == 3:
+        pass
+    if level == 4:
+        pass
+    if level == 5:
+        pass
+    if level == 6:
+        pass
+    if level == 7:
+        pass
+    
+    
+def display_prompt(loc_obj):
+    for i in range(len(loc_obj.current_prompt)):
+        for line in loc_obj.current_prompt[i]:
+            print_by_char(line, 0.01)
+        
+        if i < len(loc_obj.current_prompt) - 1:
+            print('')
+        
+    
+    loc_obj.new_prompt(loc_obj.first_visit, loc_obj.current_prompt)
+    
 
 def print_by_char(text, sec, newline=True):
     if newline:
@@ -170,6 +203,12 @@ def create_char(saves_dir):
         print_by_char('Create a password: ', 0.01, False)
         password = input()
         
+        if password == 'quit':
+            print('')
+            print_by_char('> You cannot use that as a password!', 0.01)
+            print('')
+            continue
+        
         print_by_char('Re-enter password: ', 0.01, False)
         retype = input()
         
@@ -203,11 +242,11 @@ def create_char(saves_dir):
     
 
 def init_char(name, password, pass_hint, saves_dir):
-    from game_objects import Player, Lab, Dorm, Room, Club, Phone, Laptop
+    from game_objects import Player, Lab, Dorm, Room, Club, Phone, Laptop, FB_lobby
     # Creating main player
     player = Player(name)
     
-    map_objects = {'lab': Lab(), 'dorm': Dorm(), 'room': Room(), 'club': Club()}
+    map_objects = {'lab': Lab(), 'dorm': Dorm(), 'room': Room(), 'club': Club(), 'lobby': FB_lobby()}
     
     item_objects = {'phone' : Phone(), 'laptop' : Laptop(name, password, pass_hint)}
     

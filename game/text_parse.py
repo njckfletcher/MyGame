@@ -8,6 +8,7 @@ Created on Dec 21, 2016
 import pickle
 from game_defs import print_by_char
 from game_defs import save_game
+from game_defs import display_prompt
 
 # Text parse method
 def parse_command(prompt, 
@@ -56,11 +57,13 @@ def parse_command(prompt,
     locations = ['lab', 
                  'room', 
                  'dorm',
-                 'club']
+                 'club',
+                 'lobby']
     active_locs = []
     
     objs = ['phone',
-            'laptop']
+            'laptop',
+            'around']
     active_objs = []
     
     filter_words = ['to',
@@ -195,6 +198,10 @@ def parse_command(prompt,
             return 'quit'
             active_actions.pop(0)
             active_actions.pop(0)
+        elif active_actions[0] == 'look':
+            look_handle(active_actions, has_dir_obj, active_objs, envi)
+            active_actions.pop(0)
+            active_actions.pop(0)
         else:
             print_by_char('Action not ready!', 0.01)
                     
@@ -203,6 +210,26 @@ def parse_command(prompt,
         print_by_char('Invalid command!', 0.01)
     
 
+def look_handle(active_actions, has_dir_obj, active_objs, envi):
+    while active_objs != []:
+        if active_actions[1] > active_objs[1]:
+            active_objs.pop(0)
+            active_objs.pop(0)
+        else:
+            break
+    
+    if has_dir_obj[0]:
+            if active_objs[0] == 'around':
+                display_prompt(envi)
+                active_objs.pop(0)
+                active_objs.pop(0)
+                return
+            else:
+                print_by_char('Look at what?', 0.01)
+    else:
+        print_by_char('Look at what?', 0.01)
+    
+    
 # Location handling method
 def location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player):
     
@@ -213,6 +240,11 @@ def location_handle(active_actions, has_article, has_dir_obj, active_locs, activ
             active_locs.pop(0)
         else:
             break
+    
+    
+    if active_locs == []:
+        has_dir_obj[0] = False
+        has_dir_obj.pop(1)
     
     
     if has_article[0] == True:
@@ -245,7 +277,17 @@ def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_ar
         else:
             break
         
-        
+    
+    if active_objs == []:
+        has_dir_obj[0] = False
+        has_dir_obj.pop(1)
+    elif active_objs[0] == 'around':
+        active_objs.pop(0)
+        active_objs.pop(0)
+        has_dir_obj[0] = False
+        has_dir_obj.pop(1)
+    
+    
     if has_article[0] == True:
         if has_dir_obj[0] == True:
             if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
@@ -300,6 +342,15 @@ def use_item(active_actions, has_article, has_dir_obj, active_objs, active_arts,
         else:
             break
         
+    if active_objs == []:
+        has_dir_obj[0] = False
+        has_dir_obj.pop(1)
+    elif active_objs[0] == 'around':
+        active_objs.pop(0)
+        active_objs.pop(0)
+        has_dir_obj[0] = False
+        has_dir_obj.pop(1)
+        
         
     if has_article[0] == True:
         if has_dir_obj[0] == True:
@@ -308,7 +359,7 @@ def use_item(active_actions, has_article, has_dir_obj, active_objs, active_arts,
                 #print('Used the item..')
                 return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
             else:
-                print('>>> You dont have a ' + str(active_objs[0]))
+                print('>>> You don\'t have a ' + str(active_objs[0]))
         else:
             print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
                 
@@ -320,7 +371,7 @@ def use_item(active_actions, has_article, has_dir_obj, active_objs, active_arts,
                 #print('Used item..')
                 return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0)
             else:
-                print('>>> You dont have a ' + str(active_objs[0]))
+                print('>>> You don\'t have a ' + str(active_objs[0]))
         else:
             print(str(active_actions[0]) + ' what?')
             

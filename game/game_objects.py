@@ -7,7 +7,9 @@ from game_defs import print_by_char
 
 class Player:
     health = 100
-    location = 'lab'
+    location = 'lobby'
+    level = 1
+    journey = 1
     
     weight = 0
     
@@ -21,7 +23,7 @@ class Player:
         
         
     def display_location(self):
-        print_by_char('Location: ' + str(self.location), 0.01)
+        print_by_char('Location: ' + self.location[0:1].upper() + self.location[1:len(self.location)], 0.01)
         
         
     def set_location(self, location):
@@ -29,7 +31,7 @@ class Player:
             print_by_char('>>> ' + str(self.name) + ' is already at the ' + str(location), 0.01)
         else:
             self.location = location
-            print_by_char('>>> ' + str(self.name) + ' moved to the ' + str(location), 0.01)
+            print_by_char('>>> ' + str(self.name) + ' moved to the ' + location[0:1].upper() + location[1:len(location)], 0.01)
             
             
     def get_location(self):
@@ -98,7 +100,7 @@ class Environment:
     
     def get_name(self):
         return self.name
-
+    
     
 class Lab(Environment):
     name = 'lab'
@@ -121,6 +123,34 @@ class Club(Environment):
     name = 'club'
     pass
 
+
+class FB_lobby(Environment):
+    
+    # Prompts:
+    name = ["Location: Lobby"]
+    opener = ['Welcome to Facebook, the home of all',
+              'things social.  Our web server is the',
+              'heart of our service, providing users with',
+              'the capability of communicating with their',
+              'friends and loved ones over the Internet.',
+              'With top of the line security, users can',
+              'safely use our service without the worry.\n']
+    base = ['The lobby is a small room with a',
+            'receptionist\'s desk and a door across from',
+            'it.  The front desk has a computer on it',
+            'labeled \'lobby_computer\'.']
+    
+    def __init__(self):
+        self.first_visit = True
+        self.current_prompt = [self.name, self.opener, self.base]
+        
+    
+    def new_prompt(self, first_visit, current_prompt):
+        if first_visit:
+            current_prompt.pop(1)
+            self.first_visit = False
+    
+    
 
 class Item():
     weight = 1
@@ -161,7 +191,8 @@ class Laptop(Item):
         
         active = True
         while active:
-            print_by_char('Welcome ' + self.username, 0.01)
+            print_by_char('"Welcome ' + self.username, 0.01)
+            print('')
             
             locked = True
             while locked:
@@ -171,17 +202,23 @@ class Laptop(Item):
                 if response == self.password:
                     locked = False
                     print('')
-                    print_by_char('Computer unlocked.')
+                    print_by_char('> Computer unlocked.', 0.01)
                     print('')
+                elif response == 'quit':
+                    break
                 else:
                     print('')
-                    
-                
-            inp = input('Please enter your password: ')
+                    print_by_char('> Wrong password!', 0.01)
+                    self.display_pass_hint()
+                    print('')
             
-            if inp == self.password:
-                print('You unlocked the computer!')
-                print('Now quitting.. ')
+            while not locked:
+                print_by_char('Well, there\'s nothing to do here.  Leaving..."', 0.01)
                 active = False
-            else:
-                print('Wrong password!')
+                break
+            
+            active = False
+                
+                
+    def display_pass_hint(self):
+        print_by_char('> Password hint: ' + self.pass_hint, 0.01)
