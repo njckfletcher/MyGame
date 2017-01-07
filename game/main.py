@@ -23,7 +23,7 @@ system_prompts = ["What do you want to do?: ",
                   "What would you like to do next?: ", 
                   "Enter your command(s): "]
 
-game_defs.intro()
+#game_defs.intro()
         
 with open(saves_dir + game_defs.load_option(saves_dir) + '.dat', 'rb') as f:
     hero, map_objects, item_objects = pickle.load(f)

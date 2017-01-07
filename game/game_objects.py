@@ -4,6 +4,8 @@ Created on Dec 21, 2016
 @author: Hunter Malm
 '''
 from game_defs import print_by_char
+import random
+from game import attacks
 
 class Player:
     health = 100
@@ -16,6 +18,10 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.inventory = ['laptop']
+        
+        
+    def receive_damage(self, damage):
+        self.health -= damage
         
         
     def display_health(self):
@@ -126,6 +132,12 @@ class Club(Environment):
 
 class FB_lobby(Environment):
     
+    # Local location names
+    lobby = {'front lobby': 'lobby', 'lobby': 'lobby'}
+    south_hall = {'south hall': 'south hall', 'hall': 'south hall'}
+    
+    avail_locs = [lobby, south_hall]
+    
     # Prompts:
     name = ["Location: Lobby"]
     opener = ['Welcome to Facebook, the home of all',
@@ -134,15 +146,21 @@ class FB_lobby(Environment):
               'the capability of communicating with their',
               'friends and loved ones over the Internet.',
               'With top of the line security, users can',
-              'safely use our service without the worry.\n']
+              'safely use our service without the worry.']
     base = ['The lobby is a small room with a',
             'receptionist\'s desk and a door across from',
             'it.  The front desk has a computer on it',
-            'labeled \'lobby_computer\'.']
+            'labeled \'lobby computer\'.']
     
     def __init__(self):
         self.first_visit = True
         self.current_prompt = [self.name, self.opener, self.base]
+        self.south_hall_door = Door()
+        self.doors = {'door': self.south_hall_door, 'south hall door': self.south_hall_door}
+        
+    
+    def open_door(self, door):
+        Door.open_door(self.doors[door])
         
     
     def new_prompt(self, first_visit, current_prompt):
@@ -150,6 +168,25 @@ class FB_lobby(Environment):
             current_prompt.pop(1)
             self.first_visit = False
     
+    
+class South_Hall():
+    
+    # Local location names
+    south_hall = {'south hall': 'south hall', 'hall': 'south hall'}
+    lobby = {'front lobby': 'lobby', 'lobby': 'lobby'}
+    
+    avail_locs = [south_hall, lobby]
+
+
+class Door(object):
+    unlocked = True
+    open = False
+    
+    def open_door(self):
+        if self.unlocked:
+            self.open = True
+        else:
+            print_by_char('>>> The door is locked', 0.01)
     
 
 class Item():
@@ -205,6 +242,8 @@ class Laptop(Item):
                     print_by_char('> Computer unlocked.', 0.01)
                     print('')
                 elif response == 'quit':
+                    print('')
+                    print_by_char('> Quitting.."', 0.01)
                     break
                 else:
                     print('')
@@ -222,3 +261,18 @@ class Laptop(Item):
                 
     def display_pass_hint(self):
         print_by_char('> Password hint: ' + self.pass_hint, 0.01)
+        
+        
+class Enemy():
+    
+    reward = 1
+    
+    def receive_damage(self, damage):
+        self.health -= damage
+
+
+class Anon(Enemy):
+
+    def attack(self, player):
+        attacks.push(player)
+    

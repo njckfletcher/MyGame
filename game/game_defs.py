@@ -202,10 +202,17 @@ def create_char(saves_dir):
     while password_set is False:
         print_by_char('Create a password: ', 0.01, False)
         password = input()
+        pass_chars = []
+        for char in password: pass_chars.append(char)
         
         if password == 'quit':
             print('')
             print_by_char('> You cannot use that as a password!', 0.01)
+            print('')
+            continue
+        elif ' ' in pass_chars:
+            print('')
+            print_by_char('> You cannot include a space!', 0.01)
             print('')
             continue
         
@@ -242,13 +249,13 @@ def create_char(saves_dir):
     
 
 def init_char(name, password, pass_hint, saves_dir):
-    from game_objects import Player, Lab, Dorm, Room, Club, Phone, Laptop, FB_lobby
+    from game_objects import Player, Laptop, FB_lobby, South_Hall
     # Creating main player
     player = Player(name)
     
-    map_objects = {'lab': Lab(), 'dorm': Dorm(), 'room': Room(), 'club': Club(), 'lobby': FB_lobby()}
+    map_objects = {'lobby': FB_lobby(), 'south hall': South_Hall()}
     
-    item_objects = {'phone' : Phone(), 'laptop' : Laptop(name, password, pass_hint)}
+    item_objects = {'laptop' : Laptop(name, password, pass_hint)}
     
     with open(saves_dir + name + '.dat', 'wb') as f:
         pickle.dump([player, map_objects, item_objects], f, protocol=4)

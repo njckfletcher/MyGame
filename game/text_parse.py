@@ -46,7 +46,8 @@ def parse_command(prompt,
                "info",
                "use",
                "save",
-               "quit"]
+               "quit",
+               "open"]
     active_actions = []
     
     arts = ["a",
@@ -58,13 +59,19 @@ def parse_command(prompt,
                  'room', 
                  'dorm',
                  'club',
-                 'lobby']
+                 'lobby',
+                 'hall']
     active_locs = []
     
     objs = ['phone',
             'laptop',
-            'around']
+            'around',
+            'door']
     active_objs = []
+    
+    adjs = ['south',
+            'front']
+    active_adjs = []
     
     filter_words = ['to',
                     'display',
@@ -87,6 +94,14 @@ def parse_command(prompt,
             if fixed_parts[i] == action:
                 active_actions.append(fixed_parts[i])
                 active_actions.append(i)
+                
+                
+    # Add adjectives and adjective indexes to active_adjs list
+    for i in range(len(fixed_parts)):
+        for adj in adjs:
+            if fixed_parts[i] == adj:
+                active_adjs.append(fixed_parts[i])
+                active_adjs.append(i)
                 
     
     # Find number of actions
@@ -132,15 +147,41 @@ def parse_command(prompt,
             current_item = None
         has_article = [False]
         has_dir_obj = [False]
+        has_adj = [False]
+        has_sec_adj = [False]
         
         # Check for article
         if int(active_actions[1] + 1) in active_arts:
             has_article[0] = True
             has_article.append(int(active_actions[1] + 1))
-            
+                
         
-        # Check for direct object
+        # Check for adjective
         if has_article[0] == True:
+            if (int(active_actions[1] + 2) in active_adjs):
+                has_adj[0] = True
+                has_adj.append(int(active_actions[1] + 2))
+        else:
+            if (int(active_actions[1] + 1) in active_adjs):
+                has_adj[0] = True
+                has_adj.append(int(active_actions[1] + 1))
+                
+        # Check for second adjective
+        if has_adj[0] == True:
+            if (int(active_adjs[1] + 1) in active_adjs):
+                has_sec_adj[0] = True
+                has_sec_adj.append(int(active_actions[1] + 2))
+                
+                
+        # Check for direct object
+        if has_article[0] == True and has_sec_adj[0] == True:
+            if (int(active_actions[1] + 4) in active_objs) or (int(active_actions[1] + 4) in active_locs):
+                has_dir_obj[0] = True
+        if (has_article[0] == True and has_adj[0] == True) or (has_sec_adj[0] == True):
+            if (int(active_actions[1] + 3) in active_objs) or (int(active_actions[1] + 3) in active_locs):
+                has_dir_obj[0] = True
+                has_dir_obj.append(int(active_actions[1] + 3))
+        elif has_article[0] == True or has_adj[0] == True:
             if (int(active_actions[1] + 2) in active_objs) or (int(active_actions[1] + 2) in active_locs):
                 has_dir_obj[0] = True
                 has_dir_obj.append(int(active_actions[1] + 2))
@@ -180,11 +221,11 @@ def parse_command(prompt,
             active_actions.pop(0)
             active_actions.pop(0)
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
-            location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player)
+            location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi)
         elif active_actions[0] == 'take' or active_actions[0] == 'grab' or active_actions[0] == 'pickup' or active_actions[0] == 'pick':
             item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi)
         elif active_actions[0] == 'use':
-            use_item(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi, current_item)
+            use_item(active_actions, has_article, has_dir_obj, active_objs, active_locs, active_arts, player, current_loc, envi, current_item)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -231,39 +272,96 @@ def look_handle(active_actions, has_dir_obj, active_objs, envi):
     
     
 # Location handling method
-def location_handle(active_actions, has_article, has_dir_obj, active_locs, active_arts, player):
+def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi):
     
     # Handles issue of removing locations from active_locs list when no action appears before it            
     while active_locs != []:
         if active_actions[1] > active_locs[1]:
             active_locs.pop(0)
             active_locs.pop(0)
+            has_dir_obj[0] = False
         else:
             break
+        
     
-    
-    if active_locs == []:
+    if not active_locs:
         has_dir_obj[0] = False
-        has_dir_obj.pop(1)
     
     
     if has_article[0] == True:
-        if has_dir_obj[0] == True:
-            player.set_location(active_locs[0])
-            return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
-        else:
-            if active_actions[0] == 'goto':
-                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+        if has_sec_adj[0] == True:
+            if has_dir_obj[0] == True:
+                for loc in envi.avail_locs:
+                    for name in loc:
+                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0]) == name:
+                            player.set_location(loc[name])
+                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
             else:
-                print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
-    else:
-        if has_dir_obj[0] == True:
-            player.set_location(active_locs[0])
-            return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0)
+                if active_actions[0] == 'goto':
+                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+                else:
+                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
+        elif has_adj[0] == True:
+            if has_dir_obj[0] == True:
+                for loc in envi.avail_locs:
+                    for name in loc:
+                        if str(active_adjs[0] + ' ' + active_locs[0]) == name:
+                            player.set_location(loc[name])
+                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            else:
+                if active_actions[0] == 'goto':
+                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+                else:
+                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
         else:
-            print_by_char(str(active_actions[0]) + ' where?', 0.01)
-           
-    return active_actions.pop(0), active_actions.pop(0)
+            if has_dir_obj[0] == True:
+                for loc in envi.avail_locs:
+                    for name in loc:
+                        if str(active_locs[0]) == name:
+                            player.set_location(loc[name])
+                            return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            else:
+                if active_actions[0] == 'goto':
+                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+                else:
+                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
+    else:
+        if has_sec_adj[0] == True:
+            if has_dir_obj[0] == True:
+                for loc in envi.avail_locs:
+                    for name in loc:
+                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0]) == name:
+                            player.set_location(loc[name])
+                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+            else:
+                if active_actions[0] == 'goto':
+                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
+                else:
+                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+        elif has_adj[0] == True:
+            if has_dir_obj[0] == True:
+                for loc in envi.avail_locs:
+                    for name in loc:
+                        if str(active_adjs[0] + ' ' + active_locs[0]) == name:
+                            player.set_location(loc[name])
+                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+            else:
+                if active_actions[0] == 'goto':
+                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
+                else:
+                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+        else:
+            if has_dir_obj[0] == True:
+                for loc in envi.avail_locs:
+                    for name in loc:
+                        if str(active_locs[0]) == name:
+                            player.set_location(loc[name])
+                            return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0)
+            else:
+                if active_actions[0] == 'goto':
+                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
+                else:
+                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
 
 
 # Location handling method
@@ -271,21 +369,16 @@ def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_ar
     
     # Handles issue of removing items from active_objs list when no action appears before it
     while active_objs != []:
-        if active_actions[1] > active_objs[1]:
+        if active_actions[1] > active_objs[1] or active_objs[0] == 'around':
             active_objs.pop(0)
             active_objs.pop(0)
+            has_dir_obj[0] = False
         else:
             break
         
     
-    if active_objs == []:
+    if not active_objs:
         has_dir_obj[0] = False
-        has_dir_obj.pop(1)
-    elif active_objs[0] == 'around':
-        active_objs.pop(0)
-        active_objs.pop(0)
-        has_dir_obj[0] = False
-        has_dir_obj.pop(1)
     
     
     if has_article[0] == True:
@@ -332,24 +425,19 @@ def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, a
         return False
     
 
-def use_item(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi, current_item):
+def use_item(active_actions, has_article, has_dir_obj, active_objs, active_locs, active_arts, player, current_loc, envi, current_item):
     
     # Handles issue of removing items from active_objs list when no action appears before it
     while active_objs != []:
-        if active_actions[1] > active_objs[1]:
+        if active_actions[1] > active_objs[1] or active_objs[0] == 'around':
             active_objs.pop(0)
             active_objs.pop(0)
+            has_dir_obj[0] = False
         else:
             break
-        
-    if active_objs == []:
+    
+    if not active_objs:
         has_dir_obj[0] = False
-        has_dir_obj.pop(1)
-    elif active_objs[0] == 'around':
-        active_objs.pop(0)
-        active_objs.pop(0)
-        has_dir_obj[0] = False
-        has_dir_obj.pop(1)
         
         
     if has_article[0] == True:
