@@ -1,0 +1,20 @@
+7 Stories:
+A Hacker's Ambition to Destroy the Internet
+The Explanation..
+--------------------------------------------
+How does the command line process the commands?
+
+The text parser takes the raw command that you enter into the console and puts each word in a list.  The list is then sorted out into other lists depending on whether the word is an action, article, adjective, object, or location.  Then, the parser sends this information into a loop that will run depending on the number of actions that appear in your command.  So if you enter "health location", the loop will run two times because both of these words are considered actions.  If you do not enter an action, the console will return "Invalid Command!".  
+
+Now, for each action in the list of actions, the parser will check the index (location of the value in the raw command) of each action and compare that with the indexes (if any) that appear in the other lists (articles, adjectives, etc.)  For example, in the command "open the door", "open" would be at the 0 index, "the" would be at the 1 index, and "door" would be at the 2 index.  The parser can check for any scenario where any combination of articles, adjectives, or direct objects (both objects and locations would be considered direct objects) appear after that action in particular.  So even though "open door" and "open the door" are different (one has an article; the other doesn't), the parser will still understand what the user is trying to send it.
+
+Once the parser has determined whether any of those items appear after the current action (being the first one to appear in the actions list), it moves on to run the possibilites.  The parser simply checks if the action is "health", "location", "inventory", etc.  If the action matches the scenario, the code runs a method defined for the action in particular.  Some actions require the previously gathered information, such as if the action has an article or adjective after it.  Simple actions may not even require any extra information.
+Example:
+"health" - does not need any extra details as it simply returns the player's current health
+"go to the front lobby" - this command's extra details are sent along to the method that is run by the action
+
+If an action requires more information, it will tell you.  For example, if you just enter "go", the console will return "go to where?" because it doesn't know where to send the player since a location was never provided.  
+
+Once the current action is run, the parser will remove it from the actions list and the loop will reiterate with the next one in line.  This allows the parser to handle multiple commands at a time.  For example, in the command "health location", the loop first iterates with the health action.  Once the player's health is returned, the actions list removes the health action (more specifically, the first action that appeared in the list).  Then, the loop reiterates with a new action at the top of the actions list, "location".  The console will accept an unlimited amount of commands, however, certain actions will take the player out of the main console and into a separate interface with a new set of commands, such as when using items or during battle.  The commands that followed after using an item will execute once the user finishes using that item.
+
+Common "interfering" words are filtered out.  These include words such as "to", "my", and "display".  These words may be entered in the console, but will be ignored by the parser. This lets the player enter commands like "display my location", which will do the same as simply "location".  The word "and" is also filtered, so "my health and display location" will do the same as "health location".   

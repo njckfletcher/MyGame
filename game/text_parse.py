@@ -70,7 +70,13 @@ def parse_command(prompt,
     active_objs = []
     
     adjs = ['south',
-            'front']
+            'front',
+            'dark',
+            'wooden',
+            'green',
+            'blue',
+            'red',
+            'silver']
     active_adjs = []
     
     filter_words = ['to',
@@ -172,6 +178,12 @@ def parse_command(prompt,
                 has_sec_adj[0] = True
                 has_sec_adj.append(int(active_actions[1] + 2))
                 
+        
+        if has_adj[0] == True:
+            if has_adj[1] in active_objs or has_adj[1] in active_locs:
+                if active_actions[0] == 'goto' or active_actions[0] == 'go' or active_actions[0] == 'move':
+                    has_adj[0] = False      
+                      
                 
         # Check for direct object
         if has_article[0] == True and has_sec_adj[0] == True:
@@ -190,7 +202,9 @@ def parse_command(prompt,
                 has_dir_obj[0] = True
                 has_dir_obj.append(int(active_actions[1] + 1))
                 
+                
         
+                
         ##########################################
         # DEBUGGING PER ACTION METHOD:        
         #debug_arts_objs(active_actions, has_article, has_dir_obj)
@@ -221,11 +235,13 @@ def parse_command(prompt,
             active_actions.pop(0)
             active_actions.pop(0)
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
-            location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi)
+            location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects)
         elif active_actions[0] == 'take' or active_actions[0] == 'grab' or active_actions[0] == 'pickup' or active_actions[0] == 'pick':
             item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi)
         elif active_actions[0] == 'use':
             use_item(active_actions, has_article, has_dir_obj, active_objs, active_locs, active_arts, player, current_loc, envi, current_item)
+        elif active_actions[0] == 'open':
+            open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -272,7 +288,7 @@ def look_handle(active_actions, has_dir_obj, active_objs, envi):
     
     
 # Location handling method
-def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi):
+def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects):
     
     # Handles issue of removing locations from active_locs list when no action appears before it            
     while active_locs != []:
@@ -291,169 +307,226 @@ def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_o
     if has_article[0] == True:
         if has_sec_adj[0] == True:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
+                for loc in envi.get_avail_locs():
                     for name in loc:
                         if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0]) == name:
                             player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
+                            envi = map_objects.get(player.location)
+                            if envi.first_visit == True:
+                                print('                  ####')
+                                display_prompt(envi)
+                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+                print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0] + ' available here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
             else:
                 if active_actions[0] == 'goto':
                     print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
                 else:
                     print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_arts.pop(0), active_arts.pop(0)
         elif has_adj[0] == True:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
+                for loc in envi.get_avail_locs():
                     for name in loc:
                         if str(active_adjs[0] + ' ' + active_locs[0]) == name:
                             player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
+                            envi = map_objects.get(player.location)
+                            if envi.first_visit == True:
+                                print('                  ####')
+                                display_prompt(envi)
+                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+                print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_locs[0] + ' available here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
             else:
                 if active_actions[0] == 'goto':
                     print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
                 else:
                     print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_arts.pop(0), active_arts.pop(0)
         else:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
+                for loc in envi.get_avail_locs():
                     for name in loc:
                         if str(active_locs[0]) == name:
                             player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
+                            envi = map_objects.get(player.location)
+                            if envi.first_visit == True:
+                                print('                  ####')
+                                display_prompt(envi)
+                            return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0)
+                print_by_char('>>> There is no ' + active_locs[0] + ' available here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
             else:
                 if active_actions[0] == 'goto':
                     print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
                 else:
                     print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_arts.pop(0), active_arts.pop(0)
     else:
         if has_sec_adj[0] == True:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
+                for loc in envi.get_avail_locs():
                     for name in loc:
                         if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0]) == name:
                             player.set_location(loc[name])
+                            envi = map_objects.get(player.location)
+                            if envi.first_visit == True:
+                                print('                  ####')
+                                display_prompt(envi)
                             return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+                print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0] + ' available here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
             else:
                 if active_actions[0] == 'goto':
                     print_by_char(str(active_actions[0]) + ' where?', 0.01)
                 else:
                     print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0)
         elif has_adj[0] == True:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
+                for loc in envi.get_avail_locs():
                     for name in loc:
                         if str(active_adjs[0] + ' ' + active_locs[0]) == name:
                             player.set_location(loc[name])
+                            envi = map_objects.get(player.location)
+                            if envi.first_visit == True:
+                                print('                  ####')
+                                display_prompt(envi)
                             return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+                print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_locs[0] + ' available here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
             else:
                 if active_actions[0] == 'goto':
                     print_by_char(str(active_actions[0]) + ' where?', 0.01)
                 else:
                     print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0)
         else:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
+                for loc in envi.get_avail_locs():
                     for name in loc:
                         if str(active_locs[0]) == name:
                             player.set_location(loc[name])
+                            envi = map_objects.get(player.location)
+                            if envi.first_visit == True:
+                                print('                  ####')
+                                display_prompt(envi)
                             return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0)
+                print_by_char('>>> There is no ' + active_locs[0] + ' available here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0)
             else:
                 if active_actions[0] == 'goto':
                     print_by_char(str(active_actions[0]) + ' where?', 0.01)
                 else:
                     print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+    
+    return active_actions.pop(0), active_actions.pop(0)
 
 
-def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi):
+def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):
     
     # Handles issue of removing locations from active_locs list when no action appears before it
-    while active_locs != []:
-        if active_actions[1] > active_locs[1]:
-            active_locs.pop(0)
-            active_locs.pop(0)
+    while active_objs != []:
+        if active_actions[1] > active_objs[1]:
+            active_objs.pop(0)
+            active_objs.pop(0)
             has_dir_obj[0] = False
         else:
             break
         
-    
-    if not active_locs:
+
+    if not active_objs:
         has_dir_obj[0] = False
+        
+        
+    if active_objs != []:
+        if active_objs[0] != 'door':
+            has_dir_obj[0] = False
     
     
     if has_article[0] == True:
         if has_sec_adj[0] == True:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
-                    for name in loc:
-                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0]) == name:
-                            player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0]) == door:
+                            envi.open_door(door)
+                        else:
+                            print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0] + ' here.', 0.01)
                 else:
-                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_arts.pop(0), active_arts.pop(0)
         elif has_adj[0] == True:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
-                    for name in loc:
-                        if str(active_adjs[0] + ' ' + active_locs[0]) == name:
-                            player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_adjs[0] + ' ' + active_objs[0]) == door:
+                            envi.open_door(door)
+                        else:
+                            print_by_char('>>> There is no ' + active_adjs[0]  + ' ' + active_objs[0] + ' here.', 0.01)
                 else:
-                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_arts.pop(0), active_arts.pop(0)
         else:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
-                    for name in loc:
-                        if str(active_locs[0]) == name:
-                            player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_objs[0]) == door:
+                            envi.open_door(door)
                 else:
-                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_arts.pop(0), active_arts.pop(0)
     else:
         if has_sec_adj[0] == True:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
-                    for name in loc:
-                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0]) == name:
-                            player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0]) == door:
+                            envi.open_door(door)
+                        else:
+                            print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0] + ' here.', 0.01)
                 else:
-                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' what?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0)
         elif has_adj[0] == True:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
-                    for name in loc:
-                        if str(active_adjs[0] + ' ' + active_locs[0]) == name:
-                            player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_adjs[0] + ' ' + active_objs[0]) == door:
+                            envi.open_door(door)
+                        else:
+                            print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_objs[0] + ' here.', 0.01)
                 else:
-                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' what?', 0.01)
+            return active_actions.pop(0), active_actions.pop(0), active_adjs.pop(0), active_adjs.pop(0)
         else:
             if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
-                    for name in loc:
-                        if str(active_locs[0]) == name:
-                            player.set_location(loc[name])
-                            return active_actions.pop(0), active_actions.pop(0), active_locs.pop(0), active_locs.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_objs[0]) == door:
+                            envi.open_door(door)
                 else:
-                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_actions.pop(0), active_actions.pop(0), active_objs.pop(0), active_objs.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' what?', 0.01)
+                
+    return active_actions.pop(0), active_actions.pop(0)
 
 
 # Location handling method
