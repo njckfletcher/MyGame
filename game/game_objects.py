@@ -4,15 +4,16 @@ Created on Dec 21, 2016
 @author: Hunter Malm
 '''
 from game_defs import print_by_char
+from game_defs import display_prompt
 import random
 import attacks
 
 class Player:
     health = 100
-    location = 'lobby'
+    location = 'Front Lobby'
     level = 1
     journey = 1
-    
+    visited = ['Front Lobby']    
     weight = 0
     
     def __init__(self, name):
@@ -23,47 +24,55 @@ class Player:
     def receive_damage(self, damage):
         self.health -= damage
         
+    
+    def get_visited(self):
+        return self.visited
+        
+    
+    def display_level(self):
+        print_by_char('Level: {}'.format(self.level), 0.01)
+        
+    
+    def get_level(self):
+        return self.level
+    
+    
+    def display_journey(self):
+        print_by_char('Journey: {}'.format(self.journey), 0.01)
+        
+        
+    def get_journey(self):
+        return self.journey
+        
         
     def display_health(self):
-        print_by_char('Health: ' + str(self.health) + '%', 0.01)
+        print_by_char('Health: {}%'.format(self.health), 0.01)
         
         
     def display_location(self):
-        loc_words = [word for word in self.location.split()]
-        
-        print_by_char('Location: ', 0.01, False)
-        for word in loc_words:
-            print_by_char(word[0:1].upper() + word[1:len(word)], 0.01, False)
-            print_by_char(' ', 0.01, False)
-        print('')
+        print_by_char('Location: {}'.format(self.location), 0.01)
         
         
-    def set_location(self, location):
-        loc_words = [word for word in location.split()]
+    def set_location(self, location, player):
         
-        if self.location == location:
-            print_by_char('>>> ' + str(self.name) + ' is already at the ', 0.01, False)
-            for word in loc_words:
-                print_by_char(word[0:1].upper() + word[1:len(word)], 0.01, False)
-                if loc_words.index(word) < len(loc_words) - 1:
-                     print_by_char(' ', 0.01, False)
-            print('.')
-        else:
-            self.location = location
-            print_by_char('>>> ' + str(self.name) + ' moved to the ', 0.01, False)
-            for word in loc_words:
-                print_by_char(word[0:1].upper() + word[1:len(word)], 0.01, False)
-                if loc_words.index(word) < len(loc_words) - 1:
-                    print_by_char(' ', 0.01, False)
-            print('.')
+        if self.location == location.get_name():
+            print_by_char('>>> {} is already at the {}.'.format(self.name, self.location), 0.01)
             
+        else:
+            self.location = location.get_name()
+            print_by_char('>>> {} moved to the {}.'.format(self.name, self.location), 0.01)
+            if location.first_visit:
+                self.visited.append(location.get_name())
+                print('    ----------------------------------')
+                display_prompt(location, player)
+                
             
     def get_location(self):
         return self.location
     
     
     def display_weight(self):
-        print_by_char('Weight: ' + str(self.weight), 0.01)
+        print_by_char('Weight: {}'.format(self.weight), 0.01)
         
         
     def set_name(self, name):
@@ -71,7 +80,7 @@ class Player:
     
     
     def display_name(self):
-        print_by_char('Name: ' + str(self.name), 0.01)
+        print_by_char('Name: {}'.format(self.name), 0.01)
         
     
     def get_name(self):
@@ -79,7 +88,7 @@ class Player:
         
         
     def display_inventory(self):
-        print_by_char('Inventory: ' + str(self.inventory), 0.01)
+        print_by_char('Inventory: {}'.format(self.inventory), 0.01)
         
     
     def get_inventory(self):
@@ -89,16 +98,16 @@ class Player:
     def add_item(self, item, action):
         self.inventory.append(item)
         if action == 'take':
-            print_by_char('>>> ' + str(self.name) + ' took the ' + str(item), 0.01)
+            print_by_char('>>> {} took the {}.'.format(self.name, item), 0.01)
         elif action == 'pick' or action == 'pickup':
-            print_by_char('>>> ' + str(self.name) + ' picked up the ' + str(item), 0.01)
+            print_by_char('>>> {} picked up the {}.'.format(self.name, item), 0.01)
         else:
-            print_by_char('>>> ' + str(self.name) + ' grabbed the ' + str(item), 0.01)
+            print_by_char('>>> {} grabbed the {}.'.format(self.name, item), 0.01)
         
         
         
     def display_stats(self):
-        self.display_name()
+        print_by_char('Name: {} | Journey: {} | Level: {}'.format(self.name, self.journey, self.level), 0.01)
         self.display_health()
         self.display_location()
         self.display_inventory()
@@ -126,105 +135,158 @@ class Environment:
         return self.name
 
 
-class FB_lobby(Environment):
+class Front_lobby(Environment):
     
     # Local location names
-    lobby = {'front lobby': 'lobby', 'lobby': 'lobby'}
-    south_hall = {'south hall': 'south hall', 'hall': 'south hall'}
+    front_lobby = {'front lobby': 'Front Lobby', 'lobby': 'Front Lobby'}
+    south_hall = {'south hall': 'South Hall', 'hall': 'South Hall'}
+    
+    # Check if player has been to local locations
+    visited_south_hall = False
     
     # Prompts:
-    name = ["Location: Lobby"]
-    opener = ['Welcome to Facebook, the home of all',
+    location = ["Location: Front Lobby"]
+             #'------------------------------------------'
+    opener = ['You enter the doors of the Internet.  You',
+              'walk into a bright room with a reception',
+              'desk to the right and a door to the left.',
+              'The desk has a computer on it labeled',
+              '"Reception Computer".  Above you is a sign',
+              'hanging from the cieling that says',
+              '"Front Lobby".  A plaque sits next to the',
+              'door reading:',
+              '',
+              '"Welcome to Facebook, the home of all',
               'things social.  Our web server is the',
               'heart of our service, providing users with',
               'the capability of communicating with their',
               'friends and loved ones over the Internet.',
               'With top of the line security, users can',
-              'safely use our service without the worry.']
-    base = ['The lobby is a small room with a',
-            'receptionist\'s desk and a door across from',
-            'it.  The front desk has a computer on it',
-            'labeled \'lobby computer\'.']
+              'safely use our service without the worry."']
+    
+    base_01 = ['There is a door and a reception desk.  The',
+               'desk has a computer on it labeled',
+               '"Lobby Computer".']
+              #'------------------------------------------'
+    base_02 = ['There is a reception desk with a computer',
+               'on it.  The computer is labeled "Reception',
+               'Computer".  A doorway leads to a hall.']
+    base_03 = ['There is a reception desk with a computer',
+               'on it.  The computer is labeled "Reception',
+               'Computer".  A doorway leads to the South',
+               'Hall']
+    
     
     def __init__(self):
+        self.name = 'Front Lobby'
         self.first_visit = True
-        self.current_prompt = [self.name, self.opener, self.base]
-        self.south_hall_door = Door(False, True, self.south_hall)
+        self.current_prompt = [self.opener]
+        self.south_hall_door = Door('south hall door', False, True)
         self.doors = {'door': self.south_hall_door}
+        self.avail_locs = [self.front_lobby]
         
     
-    def open_door(self, door):
-        Door.open_door(self.doors[door])
+    def open_door(self, door, phrase, player):
+        Door.open_door(self.doors[door], phrase)
+        self.get_current_prompt(self.first_visit, self.current_prompt, player)
         
     
-    def new_prompt(self, first_visit, current_prompt):
+    def get_current_prompt(self, first_visit, current_prompt, player):
+        self.update_avail_locs()
+        
         if first_visit:
-            current_prompt.pop(1)
+            current_prompt.pop(0)
+            self.current_prompt.append(self.location)
+            self.current_prompt.append(self.base_01)
             self.first_visit = False
+        
+        if self.base_02 not in self.current_prompt:
+            for loc in self.avail_locs:
+                for name in loc:
+                    if loc[name] == 'South Hall':
+                        self.current_prompt.pop(1)
+                        self.current_prompt.append(self.base_02)
+        
+        if self.base_03 not in self.current_prompt:
+            if 'South Hall' in  player.get_visited():
+                self.current_prompt.pop(1)
+                self.current_prompt.append(self.base_03)
+                
+        
+        return self.current_prompt
             
     
-    def get_avail_locs(self):
-        avail_locs = [self.lobby]
+    def update_avail_locs(self):
         
-        if 'south_hall' not in avail_locs:
+        if 'south_hall' not in self.avail_locs:
             if self.south_hall_door.open == True:
-                avail_locs.append(self.south_hall)
-        
-        return avail_locs
+                self.avail_locs.append(self.south_hall)
                 
     
     
-class South_Hall():
+class South_Hall(Environment):
     
     # Local location names
-    south_hall = {'south hall': 'south hall', 'hall': 'south hall'}
-    lobby = {'front lobby': 'lobby', 'lobby': 'lobby'}
+    south_hall = {'south hall': 'South Hall', 'hall': 'South Hall'}
+    front_lobby = {'front lobby': 'Front Lobby', 'lobby': 'Front Lobby'}
     
      # Prompts:
-    name = ["Location: South Hall"]
+    location = ["Location: South Hall"]
     opener = ['This is the opener to the South Hall.']
     
     
     def __init__(self):
+        self.name = 'South Hall'
         self.first_visit = True
-        self.current_prompt = [self.name, self.opener]
+        self.current_prompt = [self.location, self.opener]
         self.doors = {}
         
     
-    def new_prompt(self, first_visit, current_prompt):
+    def get_current_prompt(self, first_visit, current_prompt, player):
         if first_visit:
-            current_prompt.pop(1)
+            current_prompt.pop(0)
+            self.current_prompt.append(self.location)
+            self.current_prompt.append(self.base_01)
             self.first_visit = False
+        
+        return self.current_prompt
     
     
     def get_avail_locs(self):
-        avail_locs = [self.south_hall, self.lobby]
+        avail_locs = [self.south_hall, self.front_lobby]
         
         return avail_locs
 
 
 class Door(object):
     
-    def __init__(self, open, unlocked, loc_dict):
+    name = None
+    
+    south_hall_door_opener = 'The doorway leads to a hall.'
+    
+    def __init__(self, name, open, unlocked):
+        self.name = name
         self.open = open
         self.unlocked = unlocked
-        self.loc_dict = loc_dict
         
         
-    def open_door(self):
+    def get_name(self):
+        return self.name
+        
+        
+    def open_door(self, phrase):
         if not self.open:
             if self.unlocked:
                 self.open = True
-                print_by_char('>>> Opened the door.', 0.01)
-                return self.loc_dict
+                print_by_char('>>> Opened the {}.'.format(phrase), 0.01)
+                if self.get_name() == 'south hall door':
+                    print(self.south_hall_door_opener)
             else:
                 print_by_char('>>> The door is locked.', 0.01)
         else:
             print_by_char('>>> The door is already open.', 0.01)
-            return
-        
-    
-
+            
+            
 class Item():
     weight = 1
     

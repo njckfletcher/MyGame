@@ -40,7 +40,7 @@ def display_level(level):
         pass
     
     
-def display_prompt(loc_obj):
+def display_prompt(loc_obj, player):
     for i in range(len(loc_obj.current_prompt)):
         for line in loc_obj.current_prompt[i]:
             print_by_char(line, 0.01)
@@ -49,7 +49,7 @@ def display_prompt(loc_obj):
             print('')
         
     
-    loc_obj.new_prompt(loc_obj.first_visit, loc_obj.current_prompt)
+    loc_obj.get_current_prompt(loc_obj.first_visit, loc_obj.current_prompt, player)
     
 
 def print_by_char(text, sec, newline=True):
@@ -249,11 +249,11 @@ def create_char(saves_dir):
     
 
 def init_char(name, password, pass_hint, saves_dir):
-    from game_objects import Player, Laptop, FB_lobby, South_Hall
+    from game_objects import Player, Laptop, Front_lobby, South_Hall
     # Creating main player
     player = Player(name)
     
-    map_objects = {'lobby': FB_lobby(), 'south hall': South_Hall()}
+    map_objects = {'Front Lobby': Front_lobby(), 'South Hall': South_Hall()}
     
     item_objects = {'laptop' : Laptop(name, password, pass_hint)}
     

@@ -32,17 +32,17 @@ with open(saves_dir + game_defs.load_option(saves_dir) + '.dat', 'rb') as f:
 while running:
     print('------------------------------------------')
     time.sleep(0.5)
-    game_defs.display_level(hero.level)
+    game_defs.display_level(hero.get_level())
     time.sleep(0.5)
     print('\n------------------------------------------')
-    game_defs.display_prompt(map_objects[hero.location])
+    game_defs.display_prompt(map_objects[hero.get_location()], hero)
         
                     
     while command_in_progress:
         print('------------------------------------------')
         arg = text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 
                                  hero, 
-                                 hero.location,  
+                                 hero.get_location,  
                                  map_objects,
                                  item_objects,
                                  saves_dir)
