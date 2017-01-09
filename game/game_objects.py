@@ -9,15 +9,16 @@ import random
 import attacks
 
 class Player:
-    health = 100
-    location = 'Front Lobby'
-    level = 1
-    journey = 1
-    visited = ['Front Lobby']    
-    weight = 0
+    
     
     def __init__(self, name):
         self.name = name
+        self.health = 100
+        self.location = 'Front Lobby'
+        self.level = 1
+        self.journey = 1
+        self.visited = ['Front Lobby']    
+        self.weight = 0
         self.inventory = ['laptop']
         
         
@@ -63,7 +64,7 @@ class Player:
             print_by_char('>>> {} moved to the {}.'.format(self.name, self.location), 0.01)
             if location.first_visit:
                 self.visited.append(location.get_name())
-                print('    ----------------------------------')
+                print('           --------------------')
                 display_prompt(location, player)
                 
             
@@ -173,8 +174,8 @@ class Front_lobby(Environment):
                'Computer".  A doorway leads to a hall.']
     base_03 = ['There is a reception desk with a computer',
                'on it.  The computer is labeled "Reception',
-               'Computer".  A doorway leads to the South',
-               'Hall']
+               'Computer".  A doorway leads to the',
+               'South Hall.']
     
     
     def __init__(self):
@@ -182,16 +183,16 @@ class Front_lobby(Environment):
         self.first_visit = True
         self.current_prompt = [self.opener]
         self.south_hall_door = Door('south hall door', False, True)
-        self.doors = {'door': self.south_hall_door}
+        self.doors = {'door': self.south_hall_door, 'left door': self.south_hall_door}
         self.avail_locs = [self.front_lobby]
         
     
-    def open_door(self, door, phrase, player):
-        Door.open_door(self.doors[door], phrase)
-        self.get_current_prompt(self.first_visit, self.current_prompt, player)
+    def open_door(self, phrase, action_after, player):
+        Door.open_door(self.doors[phrase], phrase, action_after)
+        self.update_current_prompt(self.first_visit, self.current_prompt, player)
         
     
-    def get_current_prompt(self, first_visit, current_prompt, player):
+    def update_current_prompt(self, first_visit, current_prompt, player):
         self.update_avail_locs()
         
         if first_visit:
@@ -232,17 +233,21 @@ class South_Hall(Environment):
     
      # Prompts:
     location = ["Location: South Hall"]
+             #'------------------------------------------'
     opener = ['This is the opener to the South Hall.']
+    
+    base_01 = ['This is the base_01 for the South Hall']
     
     
     def __init__(self):
         self.name = 'South Hall'
         self.first_visit = True
-        self.current_prompt = [self.location, self.opener]
+        self.current_prompt = [self.opener]
         self.doors = {}
+        self.avail_locs = [self.south_hall, self.front_lobby]
         
     
-    def get_current_prompt(self, first_visit, current_prompt, player):
+    def update_current_prompt(self, first_visit, current_prompt, player):
         if first_visit:
             current_prompt.pop(0)
             self.current_prompt.append(self.location)
@@ -252,10 +257,10 @@ class South_Hall(Environment):
         return self.current_prompt
     
     
-    def get_avail_locs(self):
-        avail_locs = [self.south_hall, self.front_lobby]
-        
-        return avail_locs
+    def update_avail_locs(self):
+        #avail_locs = [self.south_hall, self.front_lobby]
+        pass
+        #return avail_locs
 
 
 class Door(object):
@@ -274,17 +279,22 @@ class Door(object):
         return self.name
         
         
-    def open_door(self, phrase):
+    def open_door(self, phrase, action_after):
         if not self.open:
             if self.unlocked:
                 self.open = True
                 print_by_char('>>> Opened the {}.'.format(phrase), 0.01)
+                print('           --------------------')
                 if self.get_name() == 'south hall door':
                     print(self.south_hall_door_opener)
+                
             else:
-                print_by_char('>>> The door is locked.', 0.01)
+                print_by_char('>>> The {} is locked.'.format(phrase), 0.01)
         else:
-            print_by_char('>>> The door is already open.', 0.01)
+            print_by_char('>>> The {} is already open.'.format(phrase), 0.01)
+            
+        if action_after:
+                    print('           --------------------')
             
             
 class Item():

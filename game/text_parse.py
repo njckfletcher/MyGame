@@ -13,7 +13,6 @@ from game_defs import display_prompt
 # Text parse method
 def parse_command(prompt, 
                   player, 
-                  current_loc, 
                   map_objects, 
                   item_objects,
                   saves_dir):
@@ -80,7 +79,9 @@ def parse_command(prompt,
             'blue',
             'red',
             'silver',
-            'big']
+            'big',
+            'left',
+            'right']
     active_adjs = []
     
     filter_words = ['to',
@@ -261,6 +262,9 @@ def parse_command(prompt,
     
 
 def look_handle(active_actions, has_dir_obj, active_objs, envi, player):
+    # Update current prompt
+    envi.update_current_prompt(envi.first_visit, envi.current_prompt, player)
+    
     while active_objs != []:
         if active_actions[1] > active_objs[1]:
             active_objs.pop(0)
@@ -415,89 +419,67 @@ def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
     if active_objs != []:
         if active_objs[0] != 'door':
             has_dir_obj[0] = False
-    
-    
-    if has_article[0] == True:
-        if has_sec_adj[0] == True:
-            if has_dir_obj[0] == True:
-                if envi.doors:
-                    for door in envi.doors:
-                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0]) == door:
-                            envi.open_door(door)
-                        else:
-                            print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0] + ' here.', 0.01)
-                else:
-                    print_by_char('>>> There is no door here.', 0.01)
-                return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
-            return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_arts.pop(0), active_arts.pop(0)
-        elif has_adj[0] == True:
-            if has_dir_obj[0] == True:
-                if envi.doors:
-                    for door in envi.doors:
-                        if str(active_adjs[0] + ' ' + active_objs[0]) == door:
-                            envi.open_door(door)
-                        else:
-                            print_by_char('>>> There is no ' + active_adjs[0]  + ' ' + active_objs[0] + ' here.', 0.01)
-                else:
-                    print_by_char('>>> There is no door here.', 0.01)
-                return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
-            return active_adjs.pop(0), active_adjs.pop(0), active_arts.pop(0), active_arts.pop(0)
-        else:
-            if has_dir_obj[0] == True:
-                if envi.doors:
-                    for door in envi.doors:
-                        if str(active_objs[0]) == door:
-                            envi.open_door(door)
-                else:
-                    print_by_char('>>> There is no door here.', 0.01)
-                return active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
-            return active_arts.pop(0), active_arts.pop(0)
+            
+            
+    if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
+        action_after = True
     else:
-        if has_sec_adj[0] == True:
-            if has_dir_obj[0] == True:
-                if envi.doors:
-                    for door in envi.doors:
-                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0]) == door:
-                            envi.open_door(door)
-                        else:
-                            print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0] + ' here.', 0.01)
-                else:
-                    print_by_char('>>> There is no door here.', 0.01)
-                return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-            else:
-                print_by_char(str(active_actions[0]) + ' what?', 0.01)
-            return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0)
-        elif has_adj[0] == True:
-            if has_dir_obj[0] == True:
-                if envi.doors:
-                    for door in envi.doors:
-                        if str(active_adjs[0] + ' ' + active_objs[0]) == door:
-                            envi.open_door(door)
-                        else:
-                            print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_objs[0] + ' here.', 0.01)
-                else:
-                    print_by_char('>>> There is no door here.', 0.01)
-                return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-            else:
-                print_by_char(str(active_actions[0]) + ' what?', 0.01)
-            return active_adjs.pop(0), active_adjs.pop(0)
+        action_after = False
+    
+    door_found = False
+    phrase = None
+    
+    if has_dir_obj[0]:
+        
+        # Build phrase based on number or lack of adjectives
+        if has_sec_adj[0]:
+            phrase = '{} {} {}'.format(active_adjs[0], active_adjs[2], active_objs[0])
+        elif has_adj[0]:
+            phrase = '{} {}'.format(active_adjs[0], active_objs[0])
         else:
-            if has_dir_obj[0] == True:
-                if envi.doors:
-                    for door in envi.doors:
-                        if str(active_objs[0]) == door:
-                            envi.open_door(door, active_objs[0], player)
-                else:
-                    print_by_char('>>> There is no door here.', 0.01)
-                return active_objs.pop(0), active_objs.pop(0)
-            else:
-                print_by_char(str(active_actions[0]) + ' what?', 0.01)
+            phrase = '{}'.format(active_objs[0])
+            
+        # Check if the environment has any doors
+        if envi.doors:
+            open_run = False
+            while not open_run:
+                for door in envi.doors:
+                    if phrase == door:
+                        envi.open_door(phrase, action_after, player)
+                        door_found = True
+                        open_run = True
+                break
+            if not door_found:
+                print_by_char('>>> There is no {} here.'.format(phrase), 0.01)
+                
+                if action_after:
+                    print('           --------------------')
+        else:
+            print_by_char('>>> There are no doors here.', 0.01)
+            
+            if action_after:
+                    print('           --------------------')
+    else:
+        
+        # Since no direct objects exist, print question depending on the presence of an article
+        if has_article[0]:
+            print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.01)
+        else:
+            print_by_char('{} what?'.format(active_actions[0]), 0.01)
+            
+    # Returns (removes the used adjs, arts, and objs)
+    if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
+        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
+    elif has_article[0] and has_adj[0] and has_dir_obj[0]:
+        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
+    elif has_article[0] and has_dir_obj[0]:
+        return active_arts.pop(0), active_arts.pop(0), active_objs.pop(0), active_objs.pop(0)
+    elif has_sec_adj[0] and has_dir_obj[0]:
+        return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
+    elif has_adj[0] and has_dir_obj[0]:
+        return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
+    elif has_dir_obj[0]:
+        return active_objs.pop(0), active_objs.pop(0)
 
 
 # Location handling method

@@ -41,8 +41,7 @@ while running:
     while command_in_progress:
         print('------------------------------------------')
         arg = text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 
-                                 hero, 
-                                 hero.get_location,  
+                                 hero,  
                                  map_objects,
                                  item_objects,
                                  saves_dir)
