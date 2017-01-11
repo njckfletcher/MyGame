@@ -161,6 +161,11 @@ def parse_command(prompt,
         has_adj = [False]
         has_sec_adj = [False]
         
+        if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
+            action_after = True
+        else:
+            action_after = False
+        
         # Check for article
         if int(active_actions[1] + 1) in active_arts:
             has_article[0] = True
@@ -232,13 +237,13 @@ def parse_command(prompt,
         elif (active_actions[0] == 'stats') or (active_actions[0] == 'status') or (active_actions[0] == 'info'):
             player.display_stats()
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
-            location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects)
+            location_handle(action_after, active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects)
         elif active_actions[0] == 'take' or active_actions[0] == 'grab' or active_actions[0] == 'pickup' or active_actions[0] == 'pick':
             item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi)
         elif active_actions[0] == 'use':
             use_item(active_actions, has_article, has_dir_obj, active_objs, active_locs, active_arts, player, current_loc, envi, current_item)
         elif active_actions[0] == 'open':
-            open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi)
+            open_handle(action_after, active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -285,14 +290,21 @@ def look_handle(active_actions, has_dir_obj, active_objs, envi, player):
     
     
 # Location handling method
-def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects):
+def location_handle(action_after, active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects):
     
-    # Handles issue of removing locations from active_locs list when no action appears before it            
+    # Handles issue of removing locations from active_locs list when the current action appears after it        
     while active_locs != []:
         if active_actions[1] > active_locs[1]:
             active_locs.pop(0)
             active_locs.pop(0)
-            has_dir_obj[0] = False
+        else:
+            break
+       
+    # Handles issue of removing adjectives from active_adjs list when the current action appears after it
+    while active_adjs != []:
+        if active_actions[1] > active_adjs[1]:
+            active_adjs.pop(0)
+            active_adjs.pop(0)
         else:
             break
         
@@ -300,11 +312,6 @@ def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_o
     if not active_locs:
         has_dir_obj[0] = False
     
-    
-    if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
-        action_after = True
-    else:
-        action_after = False
     
     loc_found = False
     phrase = None
@@ -361,14 +368,20 @@ def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_o
         return active_locs.pop(0), active_locs.pop(0)
 
 
-def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):
+def open_handle(action_after, active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):
     
     # Handles issue of removing locations from active_locs list when no action appears before it
     while active_objs != []:
         if active_actions[1] > active_objs[1]:
             active_objs.pop(0)
             active_objs.pop(0)
-            has_dir_obj[0] = False
+        else:
+            break
+    
+    while active_adjs != []:
+        if active_actions[1] > active_adjs[1]:
+            active_adjs.pop(0)
+            active_adjs.pop(0)
         else:
             break
         
@@ -381,11 +394,6 @@ def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
         if active_objs[0] != 'door':
             has_dir_obj[0] = False
             
-            
-    if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
-        action_after = True
-    else:
-        action_after = False
     
     door_found = False
     phrase = None

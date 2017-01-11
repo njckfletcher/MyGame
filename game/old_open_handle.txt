@@ -1,0 +1,83 @@
+    if has_article[0] == True:
+        if has_sec_adj[0] == True:
+            if has_dir_obj[0] == True:
+                if envi.doors:
+                    for door in envi.doors:
+                        if '{} {} {}'.format(active_adjs[0], active_adjs[2], active_objs[0]) == door:
+                            envi.open_door(door, '{} {} {}'.format(active_adjs[0], active_adjs[2], active_objs[0]), player)
+                            door_found = True
+                    if not door_found:
+                        print_by_char('>>> There is no {} {} {} here.'.format(active_adjs[0], active_adjs[2], active_objs[0]), 0.01)
+                    return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+                else:
+                    print_by_char('>>> There are no doors here.', 0.01)
+                return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+        elif has_adj[0] == True:
+            if has_dir_obj[0] == True:
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_adjs[0] + ' ' + active_objs[0]) == door:
+                            envi.open_door(door, '{} {}'.format(active_adjs[0], active_objs[0]), player)
+                            door_found = True
+                    if not door_found:
+                        print_by_char('>>> There is no {} {} here.'.format(active_adjs[0], active_objs[0]), 0.01)
+                    return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+                else:
+                    print_by_char('>>> There are no doors here.', 0.01)
+                return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+        else:
+            if has_dir_obj[0] == True:
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_objs[0]) == door:
+                            envi.open_door(door, '{}'.format(active_objs[0]), player)
+                            door_found = True
+                    if not door_found:
+                        print_by_char('>>> There is no {} here.'.format(active_objs[0]), 0.01)
+                    return active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+                else:
+                    print_by_char('>>> There are no doors here.', 0.01)
+                return active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+        if has_dir_obj[0] == False:
+            print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+        return active_arts.pop(0), active_arts.pop(0)
+    else:
+        if has_sec_adj[0] == True:
+            if has_dir_obj[0] == True:
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0]) == door:
+                            envi.open_door(door, active_objs[0], player)
+                        else:
+                            print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_objs[0] + ' here.', 0.01)
+                else:
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' what?', 0.01)
+            return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0)
+        elif has_adj[0] == True:
+            if has_dir_obj[0] == True:
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_adjs[0] + ' ' + active_objs[0]) == door:
+                            envi.open_door(door, active_objs[0], player)
+                        else:
+                            print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_objs[0] + ' here.', 0.01)
+                else:
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' what?', 0.01)
+            return active_adjs.pop(0), active_adjs.pop(0)
+        else:
+            if has_dir_obj[0] == True:
+                if envi.doors:
+                    for door in envi.doors:
+                        if str(active_objs[0]) == door:
+                            envi.open_door(door, active_objs[0], player)
+                else:
+                    print_by_char('>>> There is no door here.', 0.01)
+                return active_objs.pop(0), active_objs.pop(0)
+            else:
+                print_by_char(str(active_actions[0]) + ' what?', 0.01)
