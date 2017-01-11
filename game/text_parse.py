@@ -301,103 +301,64 @@ def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_o
         has_dir_obj[0] = False
     
     
-    if has_article[0] == True:
-        if has_sec_adj[0] == True:
-            if has_dir_obj[0] == True:
-                for loc in envi.get_avail_locs():
-                    for name in loc:
-                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0]) == name:
-                            envi = map_objects.get(loc[name])
-                            player.set_location(envi, player)
-                            return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-                print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0] + ' available here.', 0.01)
-                return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
-                else:
-                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
-            return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_arts.pop(0), active_arts.pop(0)
-        elif has_adj[0] == True:
-            if has_dir_obj[0] == True:
-                for loc in envi.get_avail_locs():
-                    for name in loc:
-                        if str(active_adjs[0] + ' ' + active_locs[0]) == name:
-                            envi = map_objects.get(loc[name])
-                            player.set_location(envi, player)
-                            return active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-                print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_locs[0] + ' available here.', 0.01)
-                return active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
-                else:
-                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
-            return active_adjs.pop(0), active_adjs.pop(0), active_arts.pop(0), active_arts.pop(0)
-        else:
-            if has_dir_obj[0] == True:
-                for loc in envi.get_avail_locs():
-                    for name in loc:
-                        if str(active_locs[0]) == name:
-                            envi = map_objects.get(loc[name])
-                            player.set_location(envi, player)
-                            return active_locs.pop(0), active_locs.pop(0)
-                print_by_char('>>> There is no ' + active_locs[0] + ' available here.', 0.01)
-                return active_locs.pop(0), active_locs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
-                else:
-                    print_by_char(str(active_actions[0]) + ' to ' + str(active_arts[0]) + ' what?', 0.01)
-            return active_arts.pop(0), active_arts.pop(0)
+    if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
+        action_after = True
     else:
-        if has_sec_adj[0] == True:
-            if has_dir_obj[0] == True:
-                for loc in envi.get_avail_locs():
-                    for name in loc:
-                        if str(active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0]) == name:
-                            envi = map_objects.get(loc[name])
-                            player.set_location(envi, player)
-                            return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-                print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_adjs[2] + ' ' + active_locs[0] + ' available here.', 0.01)
-                return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
-                else:
-                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
-            return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0)
-        elif has_adj[0] == True:
-            if has_dir_obj[0] == True:
-                for loc in envi.get_avail_locs():
-                    for name in loc:
-                        if str(active_adjs[0] + ' ' + active_locs[0]) == name:
-                            envi = map_objects.get(loc[name])
-                            player.set_location(envi, player)
-                            return active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-                print_by_char('>>> There is no ' + active_adjs[0] + ' ' + active_locs[0] + ' available here.', 0.01)
-                return active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
-                else:
-                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
-            return active_adjs.pop(0), active_adjs.pop(0)
+        action_after = False
+    
+    loc_found = False
+    phrase = None
+    
+    if has_dir_obj[0]:
+        
+        # Build phrase based on number or lack of adjectives
+        if has_sec_adj[0]:
+            phrase = '{} {} {}'.format(active_adjs[0], active_adjs[2], active_locs[0])
+        elif has_adj[0]:
+            phrase = '{} {}'.format(active_adjs[0], active_locs[0])
         else:
-            if has_dir_obj[0] == True:
-                for loc in envi.avail_locs:
-                    for name in loc:
-                        if str(active_locs[0]) == name:
-                            envi = map_objects.get(loc[name])
-                            player.set_location(envi, player)
-                            return active_locs.pop(0), active_locs.pop(0)
-                print_by_char('>>> There is no ' + active_locs[0] + ' available here.', 0.01)
-                return active_locs.pop(0), active_locs.pop(0)
-            else:
-                if active_actions[0] == 'goto':
-                    print_by_char(str(active_actions[0]) + ' where?', 0.01)
-                else:
-                    print_by_char(str(active_actions[0]) + ' to where?', 0.01)
+            phrase = '{}'.format(active_locs[0])
+            
+        action_run = False
+        
+        
+        for loc in envi.avail_locs:
+            while not action_run:
+                for name in loc:
+                    if phrase == name:
+                        envi = map_objects.get(loc[name])
+                        player.set_location(action_after, envi, player)
+                        action_run = True
+                        loc_found = True
+                break
+        if not loc_found:
+            print_by_char('>>> There is no {} available here.'.format(phrase), 0.01)
+            
+            if action_after:
+                print('           --------------------')
+                     
+            
+    else:
+        
+        # Since no direct objects exist, print question depending on the presence of an article
+        if has_article[0]:
+            print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.01)
+        else:
+            print_by_char('{} where?'.format(active_actions[0]), 0.01)
+            
+    # Returns (removes the used adjs, arts, and objs)
+    if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
+        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+    elif has_article[0] and has_adj[0] and has_dir_obj[0]:
+        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+    elif has_article[0] and has_dir_obj[0]:
+        return active_arts.pop(0), active_arts.pop(0), active_locs.pop(0), active_locs.pop(0)
+    elif has_sec_adj[0] and has_dir_obj[0]:
+        return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+    elif has_adj[0] and has_dir_obj[0]:
+        return active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
+    elif has_dir_obj[0]:
+        return active_locs.pop(0), active_locs.pop(0)
 
 
 def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):

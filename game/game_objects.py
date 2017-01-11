@@ -54,7 +54,7 @@ class Player:
         print_by_char('Location: {}'.format(self.location), 0.01)
         
         
-    def set_location(self, location, player):
+    def set_location(self, action_after, location, player):
         
         if self.location == location.get_name():
             print_by_char('>>> {} is already at the {}.'.format(self.name, self.location), 0.01)
@@ -66,6 +66,9 @@ class Player:
                 self.visited.append(location.get_name())
                 print('           --------------------')
                 display_prompt(location, player)
+        
+        if action_after:
+            print('           --------------------')
                 
             
     def get_location(self):
