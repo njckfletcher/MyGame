@@ -147,11 +147,14 @@ def parse_command(prompt,
     # DEBUGGING COMMAND METHOD
     #debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs)
     
-    
+    actions_run = 0
     # Running possibilities based on number of actions called
     for i in range(num_actv_actions):
+        #actions_run += 1
+        # USE ABOVE I TO CHECK FOR ACTION_BEFORE??
+        print(i)
         current_loc = player.get_location()
-        envi = map_objects.get(player.location)
+        envi = map_objects.get(player.get_location())
         if active_objs != []:
             current_item = item_objects.get(active_objs[0])
         else:
@@ -260,6 +263,7 @@ def parse_command(prompt,
         
         active_actions.pop(0)
         active_actions.pop(0)
+        
                     
                     
     if num_actv_actions == 0:
