@@ -152,9 +152,13 @@ def parse_command(prompt,
     for i in range(num_actv_actions):
         #actions_run += 1
         # USE ABOVE I TO CHECK FOR ACTION_BEFORE??
+<<<<<<< HEAD
         #print(i)
+=======
+        print(i)
+>>>>>>> origin/master
         current_loc = player.get_location()
-        envi = map_objects.get(player.location)
+        envi = map_objects.get(player.get_location())
         if active_objs != []:
             current_item = item_objects.get(active_objs[0])
         else:
@@ -260,6 +264,7 @@ def parse_command(prompt,
         
         active_actions.pop(0)
         active_actions.pop(0)
+        
                     
                     
     if num_actv_actions == 0:
