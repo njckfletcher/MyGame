@@ -54,7 +54,7 @@ class Player:
         print_by_char('Location: {}'.format(self.location), 0.01)
         
         
-    def set_location(self, action_after, location, player):
+    def set_location(self, location, player):
         
         if self.location == location.get_name():
             print_by_char('>>> {} is already at the {}.'.format(self.name, self.location), 0.01)
@@ -66,9 +66,6 @@ class Player:
                 self.visited.append(location.get_name())
                 print('           --------------------')
                 display_prompt(location, player)
-        
-        if action_after:
-            print('           --------------------')
                 
             
     def get_location(self):
@@ -190,8 +187,8 @@ class Front_lobby(Environment):
         self.avail_locs = [self.front_lobby]
         
     
-    def open_door(self, phrase, action_after, player):
-        Door.open_door(self.doors[phrase], phrase, action_after)
+    def open_door(self, phrase, player):
+        Door.open_door(self.doors[phrase], phrase)
         self.update_current_prompt(self.first_visit, self.current_prompt, player)
         
     
@@ -237,7 +234,8 @@ class South_Hall(Environment):
      # Prompts:
     location = ["Location: South Hall"]
              #'------------------------------------------'
-    opener = ['This is the opener to the South Hall.']
+    opener = ['This is the opener to the South Hall.',
+              'And this is another line!']
     
     base_01 = ['This is the base_01 for the South Hall']
     
@@ -282,7 +280,7 @@ class Door(object):
         return self.name
         
         
-    def open_door(self, phrase, action_after):
+    def open_door(self, phrase):
         if not self.open:
             if self.unlocked:
                 self.open = True
@@ -295,9 +293,6 @@ class Door(object):
                 print_by_char('>>> The {} is locked.'.format(phrase), 0.01)
         else:
             print_by_char('>>> The {} is already open.'.format(phrase), 0.01)
-            
-        if action_after:
-                    print('           --------------------')
             
             
 class Item():

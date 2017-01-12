@@ -147,9 +147,12 @@ def parse_command(prompt,
     # DEBUGGING COMMAND METHOD
     #debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs)
     
-    
+    actions_run = 0
     # Running possibilities based on number of actions called
     for i in range(num_actv_actions):
+        #actions_run += 1
+        # USE ABOVE I TO CHECK FOR ACTION_BEFORE??
+        #print(i)
         current_loc = player.get_location()
         envi = map_objects.get(player.location)
         if active_objs != []:
@@ -161,10 +164,7 @@ def parse_command(prompt,
         has_adj = [False]
         has_sec_adj = [False]
         
-        if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
-            action_after = True
-        else:
-            action_after = False
+        action_after = is_action_after(active_actions)        
         
         # Check for article
         if int(active_actions[1] + 1) in active_arts:
@@ -213,8 +213,6 @@ def parse_command(prompt,
                 has_dir_obj.append(int(active_actions[1] + 1))
                 
                 
-        
-                
         ##########################################
         # DEBUGGING PER ACTION METHOD:        
         #debug_arts_objs(active_actions, has_article, has_dir_obj)
@@ -237,13 +235,13 @@ def parse_command(prompt,
         elif (active_actions[0] == 'stats') or (active_actions[0] == 'status') or (active_actions[0] == 'info'):
             player.display_stats()
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
-            location_handle(action_after, active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects)
+            location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects)
         elif active_actions[0] == 'take' or active_actions[0] == 'grab' or active_actions[0] == 'pickup' or active_actions[0] == 'pick':
             item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi)
         elif active_actions[0] == 'use':
             use_item(active_actions, has_article, has_dir_obj, active_objs, active_locs, active_arts, player, current_loc, envi, current_item)
         elif active_actions[0] == 'open':
-            open_handle(action_after, active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi)
+            open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -257,6 +255,8 @@ def parse_command(prompt,
             print(player.get_visited())
         else:
             print_by_char('Action not ready!', 0.01)
+            
+        if action_after: print('           --------------------')
         
         active_actions.pop(0)
         active_actions.pop(0)
@@ -290,7 +290,7 @@ def look_handle(active_actions, has_dir_obj, active_objs, envi, player):
     
     
 # Location handling method
-def location_handle(action_after, active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects):
+def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects):
     
     # Handles issue of removing locations from active_locs list when the current action appears after it        
     while active_locs != []:
@@ -334,22 +334,22 @@ def location_handle(action_after, active_actions, has_article, has_adj, has_sec_
                 for name in loc:
                     if phrase == name:
                         envi = map_objects.get(loc[name])
-                        player.set_location(action_after, envi, player)
+                        player.set_location(envi, player)
                         action_run = True
                         loc_found = True
                 break
         if not loc_found:
             print_by_char('>>> There is no {} available here.'.format(phrase), 0.01)
-            
-            if action_after:
-                print('           --------------------')
                      
             
     else:
         
         # Since no direct objects exist, print question depending on the presence of an article
         if has_article[0]:
-            print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.01)
+            if active_actions[0] == 'goto':
+                print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.01)
+            else:
+                print_by_char('{} to {} what?'.format(active_actions[0], active_arts[0]), 0.01)
         else:
             print_by_char('{} where?'.format(active_actions[0]), 0.01)
             
@@ -368,7 +368,7 @@ def location_handle(action_after, active_actions, has_article, has_adj, has_sec_
         return active_locs.pop(0), active_locs.pop(0)
 
 
-def open_handle(action_after, active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):
+def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):
     
     # Handles issue of removing locations from active_locs list when no action appears before it
     while active_objs != []:
@@ -414,20 +414,15 @@ def open_handle(action_after, active_actions, has_article, has_adj, has_sec_adj,
             while not open_run:
                 for door in envi.doors:
                     if phrase == door:
-                        envi.open_door(phrase, action_after, player)
+                        envi.open_door(phrase, player)
                         door_found = True
                         open_run = True
                 break
             if not door_found:
                 print_by_char('>>> There is no {} here.'.format(phrase), 0.01)
-                
-                if action_after:
-                    print('           --------------------')
         else:
             print_by_char('>>> There are no doors here.', 0.01)
             
-            if action_after:
-                    print('           --------------------')
     else:
         
         # Since no direct objects exist, print question depending on the presence of an article
@@ -556,6 +551,19 @@ def is_item_in_inventory(active_objs, player):
     else:
         #print('Player does not have item')
         return False
+    
+    
+def is_action_after(active_actions):
+    if active_actions[0] == 'open' or active_actions[0] == 'goto' or active_actions[0] == 'go' or active_actions[0] == 'move' or active_actions[0] == 'look':
+        if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
+            return True
+        else: return False
+    else:
+        if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
+            if active_actions[2] == 'open' or active_actions[2] == 'goto' or active_actions[2] == 'go' or active_actions[2] == 'move' or active_actions[2] == 'look':
+                return True
+            else: return False
+        else: return False
 
 
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):
