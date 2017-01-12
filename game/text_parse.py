@@ -150,13 +150,6 @@ def parse_command(prompt,
     actions_run = 0
     # Running possibilities based on number of actions called
     for i in range(num_actv_actions):
-        #actions_run += 1
-        # USE ABOVE I TO CHECK FOR ACTION_BEFORE??
-<<<<<<< HEAD
-        #print(i)
-=======
-        print(i)
->>>>>>> origin/master
         current_loc = player.get_location()
         envi = map_objects.get(player.get_location())
         if active_objs != []:
@@ -559,16 +552,22 @@ def is_item_in_inventory(active_objs, player):
     
     
 def is_action_after(active_actions):
-    if active_actions[0] == 'open' or active_actions[0] == 'goto' or active_actions[0] == 'go' or active_actions[0] == 'move' or active_actions[0] == 'look':
-        if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
-            return True
-        else: return False
-    else:
-        if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
-            if active_actions[2] == 'open' or active_actions[2] == 'goto' or active_actions[2] == 'go' or active_actions[2] == 'move' or active_actions[2] == 'look':
+    # The following actions list contains the actions that gets a line printed before or after them in the presence of another action
+    actions = ['open',
+               'goto',
+               'go',
+               'move',
+               'look']
+    
+    for action in actions:
+        if active_actions[0] == action:
+            if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
                 return True
-            else: return False
-        else: return False
+        else:
+            if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
+                if active_actions[2] == action:
+                    return True
+    return False
 
 
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):
