@@ -49,6 +49,7 @@ def parse_command(prompt,
                "save",
                "quit",
                "open",
+               "unlock",
                "visited"]
     active_actions = []
     

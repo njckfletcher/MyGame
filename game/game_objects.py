@@ -156,7 +156,7 @@ class Front_lobby(Environment):
               'desk to the right and a door to the left.',
               'The desk has a computer on it labeled',
               '"Reception Computer".  Above you is a sign',
-              'hanging from the cieling that says',
+              'hanging from the ceiling that says',
               '"Front Lobby".  A plaque sits next to the',
               'door reading:',
               '',
@@ -237,8 +237,17 @@ class South_Hall(Environment):
      # Prompts:
     location = ["Location: South Hall"]
              #'------------------------------------------'
-    opener = ['This is the opener to the South Hall.',
-              'And this is another line!']
+    opener = ["             -The South Hall-             ",
+              "",
+              "You step into the hall.  The south hall is",
+              "a short and narrow hallway with a door at",
+              "the far end.  A doorway leading back to",
+              "the front lobby remains behind you.  To",
+              "your right, 3 lockers sit mounted on the",
+              "wall, each with a label as follows:",
+              "     - Forbidden Locker",
+              "     - Gentleman's Locker",
+              "     - Desperation Locker"]
     
     base_01 = ['This is the base_01 for the South Hall']
     
