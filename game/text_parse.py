@@ -332,7 +332,7 @@ def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_o
                 for name in loc:
                     if phrase == name:
                         envi = map_objects.get(loc[name])
-                        player.set_location(envi, player)
+                        player.set_location(envi, player, phrase)
                         action_run = True
                         loc_found = True
                 break
@@ -557,7 +557,11 @@ def is_action_after(active_actions):
                'goto',
                'go',
                'move',
-               'look']
+               'look',
+               'info',
+               'stats',
+               'status',
+               'use']
     
     for action in actions:
         if active_actions[0] == action:

@@ -54,14 +54,17 @@ class Player:
         print_by_char('Location: {}'.format(self.location), 0.01)
         
         
-    def set_location(self, location, player):
+    def set_location(self, location, player, phrase):
         
         if self.location == location.get_name():
             print_by_char('>>> {} is already at the {}.'.format(self.name, self.location), 0.01)
             
         else:
             self.location = location.get_name()
-            print_by_char('>>> {} moved to the {}.'.format(self.name, self.location), 0.01)
+            if location.get_name() in self.visited:
+                print_by_char('>>> {} moved to the {}.'.format(self.name, self.location), 0.01)
+            else:
+                print_by_char('>>> {} moved to the {}.'.format(self.name, phrase), 0.01)
             if location.first_visit:
                 self.visited.append(location.get_name())
                 print('           --------------------')
