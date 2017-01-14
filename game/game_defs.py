@@ -187,7 +187,7 @@ def create_char(saves_dir):
         
         for file in os.listdir(saves_dir):
             if file.endswith(".dat"):
-                if name + ".dat" == file:
+                if name.lower() + ".dat" == file.lower():
                     name_taken = True
                     print('')
                     print_by_char("> This name is already taken.", 0.01)
@@ -264,12 +264,13 @@ def init_char(name, password, pass_hint, saves_dir):
         pickle.dump([player, map_objects, item_objects], f, protocol=4)
 
     
-def save_game(player, map_objects, item_objects, saves_dir):
+def save_game(player, map_objects, item_objects, saves_dir, echo=True):
     
     with open(saves_dir + player.get_name() + '.dat', 'wb') as f:
         pickle.dump([player, map_objects, item_objects], f, protocol=4)
         
-    print_by_char('Saved ' + player.get_name() + '.', 0.01)
+    if echo:
+        print_by_char('Saved ' + player.get_name() + '.', 0.01)
     
     
 def print_dots(count, newline=False):

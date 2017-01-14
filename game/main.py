@@ -55,7 +55,7 @@ while running:
     while not command_in_progress:
         print('------------------------------------------')
         
-        print_by_char('Would you like to save before quitting (y\\n): ', 0.01, False)
+        print_by_char('Would you like to save before quitting? (y\\n): ', 0.01, False)
         decision = input().lower()
         
         if decision == "y" or decision == "yes":
@@ -66,6 +66,6 @@ while running:
             break
         else:
             print('------------------------------------------')
-            print_by_char('Invalid command!', 0.01)
+            print_by_char('Please answer yes or no.', 0.01)
             
     break

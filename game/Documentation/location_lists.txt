@@ -1,0 +1,18 @@
+Location lists:
+
+Each location will have the following lists (if applicable):
+
+
+	- Inventory: The inventory contains the directly accessable items.  If items appear in the inventory, the player may take them if they are at the corresponding location.  These lists contain the actual item objects themselves.  To depict the different items, each item will be given a name variable which will be checked by the system.  **Item naming could become a more complex situation in the coming versions.  Item names may need to be put in a dictionary (similar to door handling) so that players may be able to define the same item using multiple different names.
+
+	- Doors: The doors list is actually more like a dictionary.  By using a dictionary, multiple different keys may be used to get the same value.  In this case, the keys represent what the player may try to use to refer to the value of the key, in this case, the door object itself.  The keys will also include all of the variations of describing the door object.  These variations include adjectives (usually hinted by the prompts) and combinations of multiple adjectives in the event that they are used.
+
+	- Current Prompt: This list contains the collection of mini-prompts that are currently active depending on the condition of the location.  These mini-prompts change in dependence of the other variables within the location.  The current prompt is considered segmented in the fact that it contains a collection of other prompts.  This segmenting makes it simpler to more thoroughly describe complex areas as variable conditions can receive their own mini-prompt.  The mini-prompts are actually lists themselves.  Each mini-prompt list is simply a collection of strings broken up in a strict length to improve readability.  When the current prompt is called, each mini-prompt iterates through its collection of strings and then passes along to the next mini-prompt.
+
+	- Available Locations: This list tells the location handle whether or not another area is accessible from the current location.  The list is modified by other location variables, like whether or not doors are open.  
+
+	- Containers: For starters, containers are objects that contain other objects.  This includes chests, lockers, boxes, etc.  The items in these containers are defined in the container objects themselves.  In order to transition an object from a container to the players inventory, it must be sent via a function parameter (remember, parameters DO accept objects).  Containers will have a carrying capacity.  It is safe to assume that in time, players will be able to place their own items of choice into these containers for storage purposes, however, there will be other alternatives (such as bags).
+
+	- Interactives: This list will contain all of the objects in the environment that can be used rather than taken.  
+
+	- Signs: This list holds all of the readable objects.  This includes signs, plaques, cards (maybe?), etc.

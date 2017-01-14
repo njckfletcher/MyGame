@@ -5,7 +5,7 @@ Created on Dec 21, 2016
 '''
 
 #from game import main
-import pickle
+import pickle, os
 from game_defs import print_by_char
 from game_defs import save_game
 from game_defs import display_prompt
@@ -151,6 +151,10 @@ def parse_command(prompt,
     actions_run = 0
     # Running possibilities based on number of actions called
     for i in range(num_actv_actions):
+        
+        if not active_actions:
+            break
+        
         current_loc = player.get_location()
         envi = map_objects.get(player.get_location())
         if active_objs != []:
@@ -251,6 +255,8 @@ def parse_command(prompt,
             look_handle(active_actions, has_dir_obj, active_objs, envi, player)
         elif active_actions[0] == 'visited':
             print(player.get_visited())
+        elif active_actions[0] == 'change':
+            change_name(saves_dir, active_actions, player, map_objects, item_objects)
         else:
             print_by_char('Action not ready!', 0.01)
             
@@ -545,8 +551,17 @@ def is_action_after(active_actions):
                'info',
                'stats',
                'status',
-               'use']
+               'use',
+               'change']
     
+    # Specials
+    if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
+        if active_actions[0] == 'change' and active_actions[2] == 'name':
+            if len(active_actions)/2 > 2:
+                return True
+            return False
+    
+    # Main
     for action in actions:
         if active_actions[0] == action:
             if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
@@ -556,6 +571,68 @@ def is_action_after(active_actions):
                 if active_actions[2] == action:
                     return True
     return False
+
+
+def change_name(saves_dir, active_actions, player, map_objects, item_objects):
+    if len(active_actions) > 2:
+        if active_actions[2] == 'name':
+            print_by_char('What would you like to change your name to?', 0.01)
+            current_name = player.get_name()
+            print_by_char('Current name: {}'.format(current_name), 0.01)
+            name_set = False
+            while not name_set:
+                name_taken = False
+                print_by_char('New name: ', 0.01, False)
+                new_name = input()
+                if new_name == current_name:
+                    print('')
+                    print_by_char("> Your name is already {}.".format(new_name), 0.01)
+                    print('')
+                    
+                    retry = False
+                    
+                    while not retry:
+                        print_by_char('Would you like to keep it the same? (y\\n): ', 0.01, False)
+                        decision = input().lower()
+                        if decision == "y" or decision == "yes":
+                            return active_actions.pop(2), active_actions.pop(2) 
+                        elif decision == "n" or decision == "no":
+                            print('')
+                            retry = True
+                            break
+                        else:
+                            print('')
+                            print_by_char('> Please answer yes or no.', 0.01)
+                            print('')
+                    
+                    if retry:
+                        continue
+                        
+                for file in os.listdir(saves_dir):
+                    if file.endswith(".dat"):
+                        if new_name + ".dat" == file:
+                            name_taken = True
+                            print('')
+                            print_by_char("> This name is already taken.", 0.01)
+                            print('')
+                            break
+                if len(new_name) < 20 and not name_taken:
+                    name_set = True
+                elif len(new_name) > 20:
+                    print('')
+                    print_by_char('> Max amount of characters: 20', 0.01)
+                    print_by_char('> Try again..', 0.01)
+                    print('')
+                    
+            os.remove(saves_dir + current_name + '.dat')
+            player.set_name(new_name)
+            save_game(player, map_objects, item_objects, saves_dir, False)            
+            print_by_char('\n> Name changed to {}.'.format(new_name), 0.01)
+            return active_actions.pop(2), active_actions.pop(2)
+        else:
+            print_by_char('change what?', 0.01)
+    else:
+        print_by_char('change what?', 0.01)
 
 
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):
