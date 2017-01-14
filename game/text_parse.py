@@ -235,7 +235,7 @@ def parse_command(prompt,
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
             location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects)
         elif active_actions[0] == 'take' or active_actions[0] == 'grab' or active_actions[0] == 'pickup' or active_actions[0] == 'pick':
-            item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi)
+            item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, current_loc, envi)
         elif active_actions[0] == 'use':
             use_item(active_actions, has_article, has_dir_obj, active_objs, active_locs, active_arts, player, current_loc, envi, current_item)
         elif active_actions[0] == 'open':
@@ -446,7 +446,7 @@ def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
 
 
 # Location handling method
-def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
+def item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, current_loc, envi):
     
     # Handles issue of removing items from active_objs list when no action appears before it
     while active_objs != []:
@@ -462,45 +462,28 @@ def item_handle(active_actions, has_article, has_dir_obj, active_objs, active_ar
         has_dir_obj[0] = False
     
     
-    if has_article[0] == True:
-        if has_dir_obj[0] == True:
-            if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
-                envi.remove_item(active_objs[0])
-                player.add_item(active_objs[0], active_actions[0])
-                return active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
-            else:
-                print_by_char('>>> There is no ' + str(active_objs[0]) + ' here', 0.01)
+    if has_dir_obj[0]:
+        
+        # Build phrase based on number or lack of adjectives
+        if has_sec_adj[0]:
+            phrase = '{} {} {}'.format(active_adjs[0], active_adjs[2], active_objs[0])
+        elif has_adj[0]:
+            phrase = '{} {}'.format(active_adjs[0], active_objs[0])
         else:
-            if active_actions[0] == 'pick':
-                print_by_char(str(active_actions[0]) + ' up ' + str(active_arts[0]) + ' what?', 0.01)
-            else:
-                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
-                
-                
-    else:
-        if has_dir_obj[0] == True:
-            if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
-                envi.remove_item(active_objs[0])
-                player.add_item(active_objs[0], active_actions[0])
-                return active_objs.pop(0), active_objs.pop(0)
-            else:
-                print_by_char('>>> There is no ' + str(active_objs[0]) + ' here', 0.01)
+            phrase = '{}'.format(active_objs[0])
+            
+        
+        if is_item_at_location(phrase, envi):
+            print('Item IS here.')
         else:
-            if active_actions[0] == 'pick':
-                print_by_char(str(active_actions[0]) + ' up what?', 0.01)
-            else:
-                print_by_char(str(active_actions[0]) + ' what?', 0.01)
+            print('Item is NOT here.')
     
     
-def is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
+def is_item_at_location(phrase, envi):
     
-    if current_loc == envi.get_name():
-        if active_objs[0] in envi.get_inventory():
-            return True
-        else:
-            return False
-    else:
-        return False
+    if phrase in envi.get_inventory():
+        return True
+    return False
     
 
 def use_item(active_actions, has_article, has_dir_obj, active_objs, active_locs, active_arts, player, current_loc, envi, current_item):

@@ -188,6 +188,7 @@ class Front_lobby(Environment):
         self.south_hall_door = Door('south hall door', False, True)
         self.doors = {'door': self.south_hall_door, 'left door': self.south_hall_door}
         self.avail_locs = [self.front_lobby]
+        self.inventory = ['phone', 'wooden silver laptop']
         
     
     def open_door(self, phrase, player):

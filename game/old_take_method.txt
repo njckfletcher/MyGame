@@ -1,0 +1,28 @@
+if has_article[0] == True:
+        if has_dir_obj[0] == True:
+            if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
+                envi.remove_item(active_objs[0])
+                player.add_item(active_objs[0], active_actions[0])
+                return active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            else:
+                print_by_char('>>> There is no ' + str(active_objs[0]) + ' here', 0.01)
+        else:
+            if active_actions[0] == 'pick':
+                print_by_char(str(active_actions[0]) + ' up ' + str(active_arts[0]) + ' what?', 0.01)
+            else:
+                print_by_char(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?', 0.01)
+                
+                
+    else:
+        if has_dir_obj[0] == True:
+            if is_item_at_location(active_actions, has_article, has_dir_obj, active_objs, active_arts, player, current_loc, envi):
+                envi.remove_item(active_objs[0])
+                player.add_item(active_objs[0], active_actions[0])
+                return active_objs.pop(0), active_objs.pop(0)
+            else:
+                print_by_char('>>> There is no ' + str(active_objs[0]) + ' here', 0.01)
+        else:
+            if active_actions[0] == 'pick':
+                print_by_char(str(active_actions[0]) + ' up what?', 0.01)
+            else:
+                print_by_char(str(active_actions[0]) + ' what?', 0.01)
