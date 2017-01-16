@@ -26,7 +26,7 @@ system_prompts = ["What do you want to do?: ",
 #game_defs.intro()
         
 with open(saves_dir + game_defs.load_option(saves_dir) + '.dat', 'rb') as f:
-    hero, map_objects, item_objects = pickle.load(f)
+    hero, map_objects = pickle.load(f)
         
 # Game start
 while running:
@@ -43,14 +43,11 @@ while running:
         arg = text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 
                                  hero,  
                                  map_objects,
-                                 item_objects,
                                  saves_dir)
         
         if arg == 'quit':
             print_by_char('Quitting..', 0.005)
             command_in_progress = False
-    
-    
     
     while not command_in_progress:
         print('--------------------------------------------')
@@ -60,10 +57,12 @@ while running:
         
         if decision == "y" or decision == "yes":
             print('--------------------------------------------')
-            game_defs.save_game(hero, map_objects, item_objects, saves_dir)
+            game_defs.save_game(hero, map_objects, saves_dir)
             break
+        
         elif decision == "n" or decision == "no":
             break
+        
         else:
             print('--------------------------------------------')
             print_by_char('Please answer yes or no.', 0.005)

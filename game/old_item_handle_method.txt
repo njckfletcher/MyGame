@@ -1,0 +1,38 @@
+ 
+    # Handles issue of removing items from active_objs list when no action appears before it
+    while active_objs != []:
+        if active_actions[1] > active_objs[1] or active_objs[0] == 'around':
+            active_objs.pop(0)
+            active_objs.pop(0)
+            has_dir_obj[0] = False
+        else:
+            break
+        
+    
+    if not active_objs:
+        has_dir_obj[0] = False
+    
+    
+    if has_dir_obj[0]:
+        
+        # Build phrase based on number or lack of adjectives
+        if has_sec_adj[0]:
+            phrase = '{} {} {}'.format(active_adjs[0], active_adjs[2], active_objs[0])
+        elif has_adj[0]:
+            phrase = '{} {}'.format(active_adjs[0], active_objs[0])
+        else:
+            phrase = '{}'.format(active_objs[0])
+            
+        
+        if is_item_at_location(phrase, envi):
+            print('Item IS here.')
+        else:
+            print('Item is NOT here.')
+
+def is_item_at_location(phrase, envi):
+    
+    if phrase in envi.get_inventory():
+        return True
+    return False
+    
+    

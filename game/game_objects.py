@@ -11,14 +11,15 @@ class Player:
     
     
     def __init__(self, name):
+        self.main_laptop = Laptop()
         self.name = name
         self.health = 100
         self.location = 'Front Lobby'
         self.level = 1
         self.journey = 1
         self.visited = ['Front Lobby']    
-        self.weight = 0
-        self.inventory = ['laptop']
+        self.weight = 1
+        self.inventory = {'laptop': self.main_laptop}
         
         
     def receive_damage(self, damage):
@@ -78,6 +79,10 @@ class Player:
         print_by_char('Weight: {}'.format(self.weight), 0.005)
         
         
+    def get_weight(self):
+        return self.weight
+        
+        
     def set_name(self, name):
         self.name = name
     
@@ -91,15 +96,20 @@ class Player:
         
         
     def display_inventory(self):
-        print_by_char('Inventory: {}'.format(self.inventory), 0.005)
+        print_by_char('Inventory: ', 0.005)
+        counter = 1
+        for item in self.inventory:
+            print_by_char(' > {} | Weight: {}'.format(item, self.inventory[item].get_weight()), 0.005)
         
     
     def get_inventory(self):
         return self.inventory
         
         
-    def add_item(self, item, action):
-        self.inventory.append(item)
+    def add_item(self, envi, item, action):
+        self.inventory[item] = envi.get_inventory()[item]
+        del envi.get_inventory()[item]
+        self.weight += self.inventory[item].get_weight()
         if action == 'take':
             print_by_char('>>> {} took the {}.'.format(self.name, item), 0.005)
         elif action == 'pick' or action == 'pickup':
@@ -181,13 +191,14 @@ class Front_lobby(Environment):
     
     
     def __init__(self):
+        self.lab_phone = Phone()
         self.name = 'Front Lobby'
         self.first_visit = True
         self.current_prompt = [self.opener]
         self.south_hall_door = Door('south hall door', False, True)
         self.doors = {'door': self.south_hall_door, 'left door': self.south_hall_door}
         self.avail_locs = [self.front_lobby]
-        self.inventory = ['phone', 'wooden silver laptop']
+        self.inventory = {'wooden phone': self.lab_phone}
         
     
     def open_door(self, phrase, player):
@@ -253,11 +264,13 @@ class South_Hall(Environment):
     
     
     def __init__(self):
+        self.forbidden_locker = ForbiddenLocker()
         self.name = 'South Hall'
         self.first_visit = True
         self.current_prompt = [self.opener]
         self.doors = {}
         self.avail_locs = [self.south_hall, self.front_lobby]
+        self.containers = {'forbidden locker': self.forbidden_locker}
         
     
     def update_current_prompt(self, first_visit, current_prompt, player):
@@ -307,8 +320,30 @@ class Door(object):
             print_by_char('>>> The {} is already open.'.format(phrase), 0.005)
             
             
+class Container():
+    max_capacity = 5
+    inventory = {}
+    
+    def get_inventory(self):
+        return self.inventory
+    
+
+class Locker(Container):
+    pass
+    
+    
+class ForbiddenLocker(Locker):
+    
+    def __init__(self):
+        self.random_phone = Phone()
+        self.inventory['random phone'] = self.random_phone
+            
+
 class Item():
     weight = 1
+    
+    def get_weight(self):
+        return self.weight
     
     
 class Phone(Item):
@@ -456,13 +491,13 @@ class Laptop(Item):
         while True:
             print_by_char('Set as default? (y\\n): ', 0.005, False)
             option = input().lower()
-            print('')
             if option == "y" or option == "yes":
                 self.default_acc = name
                 break
             elif option == "n" or option == "no":
                 break
             else:
+                print('')
                 print_by_char('> Please answer yes or no.', 0.005)
                 print('')
         

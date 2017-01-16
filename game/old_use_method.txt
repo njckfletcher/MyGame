@@ -1,0 +1,34 @@
+
+    # Handles issue of removing items from active_objs list when no action appears before it
+    while active_objs != []:
+        if active_actions[1] > active_objs[1] or active_objs[0] == 'around':
+            active_objs.pop(0)
+            active_objs.pop(0)
+            has_dir_obj[0] = False
+        else:
+            break
+    
+    if not active_objs:
+        has_dir_obj[0] = False
+        
+        
+    if has_article[0] == True:
+        if has_dir_obj[0] == True:
+            if is_item_in_inventory(active_objs, player):
+                player.get_inventory()[active_objs[0]].use()
+                return active_objs.pop(0), active_objs.pop(0), active_arts.pop(0), active_arts.pop(0)
+            else:
+                print('>>> You don\'t have a ' + str(active_objs[0]))
+        else:
+            print(str(active_actions[0]) + ' ' + str(active_arts[0]) + ' what?')
+                
+                
+    else:
+        if has_dir_obj[0] == True:
+            if is_item_in_inventory(active_objs, player):
+                player.get_inventory()[active_objs[0]].use()
+                return active_objs.pop(0), active_objs.pop(0)
+            else:
+                print('>>> {} doesn\'t have a {}.'.format(player.get_name(), active_objs[0]))
+        else:
+            print(str(active_actions[0]) + ' what?')

@@ -12,6 +12,6 @@ else:
     saves_dir = os.getcwd() + "\saves\\"
     
 os.remove(saves_dir + 'Hunter' + '.dat')
-game_defs.init_char('Hunter', 'lol', 'try lol', saves_dir)
+game_defs.init_char('Hunter', saves_dir)
 
 print('Character reset.')

@@ -79,7 +79,7 @@ def load_option(saves_dir):
                 save_exists = True
                 
                 with open(saves_dir + file, 'rb') as f:
-                    hero, map_objects, item_objects = pickle.load(f)
+                    hero, map_objects = pickle.load(f)
                     char_names.append(hero.get_name())
                     char_dict[str(counter)] = hero.get_name()
                     counter += 1
@@ -232,22 +232,20 @@ def create_char(saves_dir):
     
 
 def init_char(name, saves_dir):
-    from game_objects import Player, Laptop, Front_lobby, South_Hall
+    from game_objects import Player, Front_lobby, South_Hall
     # Creating main player
     player = Player(name)
     
     map_objects = {'Front Lobby': Front_lobby(), 'South Hall': South_Hall()}
     
-    item_objects = {'laptop' : Laptop()}
-    
     with open(saves_dir + name + '.dat', 'wb') as f:
-        pickle.dump([player, map_objects, item_objects], f, protocol=4)
+        pickle.dump([player, map_objects], f, protocol=4)
 
     
-def save_game(player, map_objects, item_objects, saves_dir, echo=True):
+def save_game(player, map_objects, saves_dir, echo=True):
     
     with open(saves_dir + player.get_name() + '.dat', 'wb') as f:
-        pickle.dump([player, map_objects, item_objects], f, protocol=4)
+        pickle.dump([player, map_objects], f, protocol=4)
         
     if echo:
         print_by_char('Saved ' + player.get_name() + '.', 0.005)
