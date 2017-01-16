@@ -17,7 +17,7 @@ def parse_command(prompt,
                   item_objects,
                   saves_dir):
     # Parser input call and variables
-    print_by_char(prompt, 0.01, False)
+    print_by_char(prompt, 0.005, False)
     raw_command = input().lower()
     print('--------------------------------------------')
     raw_parts = raw_command.split()
@@ -258,7 +258,7 @@ def parse_command(prompt,
         elif active_actions[0] == 'change':
             change_name(saves_dir, active_actions, player, map_objects, item_objects)
         else:
-            print_by_char('Action not ready!', 0.01)
+            print_by_char('Action not ready!', 0.005)
             
         if action_after: print('          ----------------------')
         
@@ -268,7 +268,7 @@ def parse_command(prompt,
                     
                     
     if num_actv_actions == 0:
-        print_by_char('Invalid command!', 0.01)
+        print_by_char('Invalid command!', 0.005)
     
 
 def look_handle(active_actions, has_dir_obj, active_objs, envi, player):
@@ -289,9 +289,9 @@ def look_handle(active_actions, has_dir_obj, active_objs, envi, player):
                 active_objs.pop(0)
                 return
             else:
-                print_by_char('Look at what?', 0.01)
+                print_by_char('Look at what?', 0.005)
     else:
-        print_by_char('Look at what?', 0.01)
+        print_by_char('Look at what?', 0.005)
     
     
 # Location handling method
@@ -344,7 +344,7 @@ def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_o
                         loc_found = True
                 break
         if not loc_found:
-            print_by_char('>>> There is no {} available here.'.format(phrase), 0.01)
+            print_by_char('>>> There is no {} available here.'.format(phrase), 0.005)
                      
             
     else:
@@ -352,11 +352,11 @@ def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_o
         # Since no direct objects exist, print question depending on the presence of an article
         if has_article[0]:
             if active_actions[0] == 'goto':
-                print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.01)
+                print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.005)
             else:
-                print_by_char('{} to {} what?'.format(active_actions[0], active_arts[0]), 0.01)
+                print_by_char('{} to {} what?'.format(active_actions[0], active_arts[0]), 0.005)
         else:
-            print_by_char('{} where?'.format(active_actions[0]), 0.01)
+            print_by_char('{} where?'.format(active_actions[0]), 0.005)
             
     # Returns (removes the used adjs, arts, and objs)
     if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
@@ -424,17 +424,17 @@ def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
                         open_run = True
                 break
             if not door_found:
-                print_by_char('>>> There is no {} here.'.format(phrase), 0.01)
+                print_by_char('>>> There is no {} here.'.format(phrase), 0.005)
         else:
-            print_by_char('>>> There are no doors here.', 0.01)
+            print_by_char('>>> There are no doors here.', 0.005)
             
     else:
         
         # Since no direct objects exist, print question depending on the presence of an article
         if has_article[0]:
-            print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.01)
+            print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.005)
         else:
-            print_by_char('{} what?'.format(active_actions[0]), 0.01)
+            print_by_char('{} what?'.format(active_actions[0]), 0.005)
             
     # Returns (removes the used adjs, arts, and objs)
     if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
@@ -576,23 +576,23 @@ def is_action_after(active_actions):
 def change_name(saves_dir, active_actions, player, map_objects, item_objects):
     if len(active_actions) > 2:
         if active_actions[2] == 'name':
-            print_by_char('What would you like to change your name to?', 0.01)
+            print_by_char('What would you like to change your name to?', 0.005)
             current_name = player.get_name()
-            print_by_char('Current name: {}'.format(current_name), 0.01)
+            print_by_char('Current name: {}'.format(current_name), 0.005)
             name_set = False
             while not name_set:
                 name_taken = False
-                print_by_char('New name: ', 0.01, False)
+                print_by_char('New name: ', 0.005, False)
                 new_name = input()
                 if new_name == current_name:
                     print('')
-                    print_by_char("> Your name is already {}.".format(new_name), 0.01)
+                    print_by_char("> Your name is already {}.".format(new_name), 0.005)
                     print('')
                     
                     retry = False
                     
                     while not retry:
-                        print_by_char('Would you like to keep it the same? (y\\n): ', 0.01, False)
+                        print_by_char('Would you like to keep it the same? (y\\n): ', 0.005, False)
                         decision = input().lower()
                         if decision == "y" or decision == "yes":
                             return active_actions.pop(2), active_actions.pop(2) 
@@ -602,7 +602,7 @@ def change_name(saves_dir, active_actions, player, map_objects, item_objects):
                             break
                         else:
                             print('')
-                            print_by_char('> Please answer yes or no.', 0.01)
+                            print_by_char('> Please answer yes or no.', 0.005)
                             print('')
                     
                     if retry:
@@ -613,26 +613,26 @@ def change_name(saves_dir, active_actions, player, map_objects, item_objects):
                         if new_name + ".dat" == file:
                             name_taken = True
                             print('')
-                            print_by_char("> This name is already taken.", 0.01)
+                            print_by_char("> This name is already taken.", 0.005)
                             print('')
                             break
                 if len(new_name) < 20 and not name_taken:
                     name_set = True
                 elif len(new_name) > 20:
                     print('')
-                    print_by_char('> Max amount of characters: 20', 0.01)
-                    print_by_char('> Try again..', 0.01)
+                    print_by_char('> Max amount of characters: 20', 0.005)
+                    print_by_char('> Try again..', 0.005)
                     print('')
                     
             os.remove(saves_dir + current_name + '.dat')
             player.set_name(new_name)
             save_game(player, map_objects, item_objects, saves_dir, False)            
-            print_by_char('\n> Name changed to {}.'.format(new_name), 0.01)
+            print_by_char('\n> Name changed to {}.'.format(new_name), 0.005)
             return active_actions.pop(2), active_actions.pop(2)
         else:
-            print_by_char('change what?', 0.01)
+            print_by_char('change what?', 0.005)
     else:
-        print_by_char('change what?', 0.01)
+        print_by_char('change what?', 0.005)
 
 
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):

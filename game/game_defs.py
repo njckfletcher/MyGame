@@ -9,22 +9,22 @@ import getpass
 
 def intro():
     time.sleep(1)
-    print_by_char('--------------------------------------------', 0.01)
+    print_by_char('--------------------------------------------', 0.005)
     time.sleep(1)
     sys.stdout.write('                ')
     print_by_char('7 Stories', 0.05)
     time.sleep(1)
     print_by_char("A Hacker's Ambition to Destroy the Internet", 0.05)
     time.sleep(1)
-    print_by_char('--------------------------------------------', 0.01)
+    print_by_char('--------------------------------------------', 0.005)
     
     
 def display_level(level):
     if level == 1:
         sys.stdout.write('            ')
-        print_by_char('Level 1 : ', 0.01, False)
+        print_by_char('Level 1 : ', 0.005, False)
         time.sleep(0.5)
-        print_by_char('Facebook', 0.01, False)
+        print_by_char('Facebook', 0.005, False)
         time.sleep(0.5)
     if level == 2:
         pass
@@ -46,7 +46,7 @@ def display_prompt(loc_obj, player):
     
     for i in range(len(loc_obj.current_prompt)):
         for line in loc_obj.current_prompt[i]:
-            print_by_char(line, 0.01)
+            print_by_char(line, 0.005)
         
         if i < len(loc_obj.current_prompt) - 1:
             print('')
@@ -88,10 +88,10 @@ def load_option(saves_dir):
             return create_char(saves_dir)
     
     
-        print_by_char("Your Characters:", 0.01)
+        print_by_char("Your Characters:", 0.005)
             
         for num in range(len(char_names)):
-            print_by_char(">> "+ str(num + 1) + ": " + char_names[num], 0.01)
+            print_by_char(">> "+ str(num + 1) + ": " + char_names[num], 0.005)
                 
                 
         print_by_char('--------------------------------------------', 0.005)
@@ -102,7 +102,7 @@ def load_option(saves_dir):
             
         while True:    
             print('--------------------------------------------')
-            print_by_char('Character: ', 0.01, False)
+            print_by_char('Character: ', 0.005, False)
             decision = input().lower()
             
             parts = decision.split()
@@ -115,11 +115,11 @@ def load_option(saves_dir):
                         if parts[parts.index(part) + 1] in char_dict:
                             print('--------------------------------------------')
                             if part == "delete":
-                                print_by_char('Deleted ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.01)
+                                print_by_char('Deleted ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.005)
                             elif part == "remove":
-                                print_by_char('Removed ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.01)
+                                print_by_char('Removed ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.005)
                             else:
-                                print_by_char('Erased ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.01)
+                                print_by_char('Erased ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.005)
                             remove_char(char_dict[parts[parts.index(part) + 1]], saves_dir)
                             char_names.remove(char_dict[parts[parts.index(part) + 1]])
                             del char_dict[parts[parts.index(part) + 1]]
@@ -128,26 +128,26 @@ def load_option(saves_dir):
                             break
                         else:
                             print('--------------------------------------------')
-                            print_by_char('You must provide a character to ' + part + '.', 0.01)
+                            print_by_char('You must provide a character to ' + part + '.', 0.005)
                             break
                     else:
                         print('--------------------------------------------')
-                        print_by_char('You must provide a character to ' + part + '.', 0.01)
+                        print_by_char('You must provide a character to ' + part + '.', 0.005)
                         break
                 elif part == "new":
                     print('--------------------------------------------')
                     return create_char(saves_dir)
                 elif part in char_dict:
                     print('--------------------------------------------')
-                    print_by_char('Loaded ' + char_dict[part] + '.', 0.01)
+                    print_by_char('Loaded ' + char_dict[part] + '.', 0.005)
                     return char_dict[part]
                 else:
                     print('--------------------------------------------')
-                    print_by_char('Invalid command!', 0.01)
+                    print_by_char('Invalid command!', 0.005)
                     break
                 
             if not parts:
-                print_by_char('>>> You must enter something!', 0.01)
+                print_by_char('>>> You must enter something!', 0.005)
                 
             if chars_modified == True:
                 break
@@ -162,7 +162,7 @@ def create_char(saves_dir):
     
     print_dots(3)
     time.sleep(0.5)
-    print_by_char(' and like that.', 0.01)
+    print_by_char(' and like that.', 0.005)
     time.sleep(1)
     
     print("")
@@ -192,7 +192,7 @@ def create_char(saves_dir):
     print('')
     while not name_set:
         name_taken = False
-        print_by_char('Your name: ', 0.01, False)
+        print_by_char('Your name: ', 0.005, False)
         name = input()
         
         for file in os.listdir(saves_dir):
@@ -200,8 +200,8 @@ def create_char(saves_dir):
                 if name.lower() + ".dat" == file.lower():
                     name_taken = True
                     print('')
-                    print_by_char("Robot: It appears as though someone with", 0.01)
-                    print_by_char("that name has already entered", 0.01, False), print_dots(2, True)
+                    print_by_char("Robot: It appears as though someone with", 0.005)
+                    print_by_char("that name has already entered", 0.005, False), print_dots(2, True)
                     break
         
         if len(name) < 20 and not name_taken:
@@ -209,8 +209,8 @@ def create_char(saves_dir):
             
         elif len(name) > 20:
             print('')
-            print_by_char("Robot: I can't save a name that is more than", 0.01)
-            print_by_char('20 characters long', 0.01, False), print_dots(2, True)
+            print_by_char("Robot: I can't save a name that is more than", 0.005)
+            print_by_char('20 characters long', 0.005, False), print_dots(2, True)
             
     print('')
     print_by_char('Robot: {}, yes.  You may call me Bytes.'.format(name), 0.005)
@@ -224,7 +224,7 @@ def create_char(saves_dir):
     init_char(name, saves_dir)
     
     print('--------------------------------------------')
-    print_by_char("Press 'enter' to start your journey", 0.01, False)
+    print_by_char("Press 'enter' to start your journey", 0.005, False)
     print_dots(2)
     getpass.getpass("")
     
@@ -250,12 +250,12 @@ def save_game(player, map_objects, item_objects, saves_dir, echo=True):
         pickle.dump([player, map_objects, item_objects], f, protocol=4)
         
     if echo:
-        print_by_char('Saved ' + player.get_name() + '.', 0.01)
+        print_by_char('Saved ' + player.get_name() + '.', 0.005)
     
     
 def print_dots(count, newline=False):
     for i in range(0, count):
-        print_by_char('.', 0.01, False)
+        print_by_char('.', 0.005, False)
         time.sleep(0.5)
     
     if newline:
