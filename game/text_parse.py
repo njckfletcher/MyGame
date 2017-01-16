@@ -95,7 +95,8 @@ def parse_command(prompt,
             'right',
             'shiny',
             'old',
-            'forbidden']
+            'forbidden',
+            'random']
     active_adjs = []
     
     preps = ['in',
