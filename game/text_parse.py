@@ -23,6 +23,16 @@ def parse_command(prompt,
     raw_word_count = len(raw_parts)
     fixed_parts = []
     
+    loc_actions = ['goto',
+                   'go',
+                   'move']
+    
+    obj_actions = ['take',
+                   'open',
+                   'use',
+                   'look',
+                   'put',
+                   'place']
     
     actions = ["level",
                "journey",
@@ -30,12 +40,7 @@ def parse_command(prompt,
                "inventory", 
                "location",
                "name", 
-               "weight", 
-               "goto", 
-               "move",
-               "go",
-               "look",
-               "take",
+               "weight",
                "pickup",
                "pick",
                "grab",
@@ -44,14 +49,17 @@ def parse_command(prompt,
                "stats",
                "status",
                "info",
-               "use",
                "save",
                "quit",
-               "open",
                "unlock",
-               "visited",
-               "put",
-               "place"]
+               "visited",]
+    
+    for loc_action in loc_actions:
+        actions.append(loc_action)
+        
+    for obj_action in obj_actions:
+        actions.append(obj_action)
+    
     active_actions = []
     
     arts = ["a",
@@ -179,9 +187,11 @@ def parse_command(prompt,
         has_adj = [False]
         has_sec_adj = [False]
         has_prep = [False]
+        has_prep_art = [False]
         has_prep_obj = [False]
         has_prep_adj = [False]
         has_sec_prep_adj = [False]
+        obj_of_prep = None
         
         action_after = is_action_after(active_actions)        
         
@@ -210,38 +220,38 @@ def parse_command(prompt,
                 
         # Check for direct object
         if has_article[0] == True and has_sec_adj[0] == True:
-            if active_actions[0] == 'goto' or active_actions[0] == 'go' or active_actions[0] == 'move':
+            if active_actions[0] in loc_actions:
                 if active_actions[1] + 4 in active_locs:
                     has_dir_obj[0] = True
                     has_dir_obj.append(active_actions[1] + 4)
-            elif active_actions[0] == 'take' or active_actions[0] == 'open' or active_actions[0] == 'use' or active_actions[0] == 'look' or active_actions[0] == 'put':
+            elif active_actions[0] in obj_actions:
                 if active_actions[1] + 4 in active_objs:
                     has_dir_obj[0] = True
                     has_dir_obj.append(active_actions[1] + 4)
         elif (has_article[0] == True and has_adj[0] == True) or (has_sec_adj[0] == True):
-            if active_actions[0] == 'goto' or active_actions[0] == 'go' or active_actions[0] == 'move':
+            if active_actions[0] in loc_actions:
                 if active_actions[1] + 3 in active_locs:
                     has_dir_obj[0] = True
                     has_dir_obj.append(active_actions[1] + 3)
-            elif active_actions[0] == 'take' or active_actions[0] == 'open' or active_actions[0] == 'use' or active_actions[0] == 'look' or active_actions[0] == 'put':
+            elif active_actions[0] in obj_actions:
                 if active_actions[1] + 3 in active_objs:
                     has_dir_obj[0] = True
                     has_dir_obj.append(active_actions[1] + 3)
         elif has_article[0] == True or has_adj[0] == True:
-            if active_actions[0] == 'goto' or active_actions[0] == 'go' or active_actions[0] == 'move':
+            if active_actions[0] in loc_actions:
                 if active_actions[1] + 2 in active_locs:
                     has_dir_obj[0] = True
                     has_dir_obj.append(active_actions[1] + 2)
-            elif active_actions[0] == 'take' or active_actions[0] == 'open' or active_actions[0] == 'use' or active_actions[0] == 'look' or active_actions[0] == 'put':
+            elif active_actions[0] in obj_actions:
                 if active_actions[1] + 2 in active_objs:
                     has_dir_obj[0] = True
                     has_dir_obj.append(active_actions[1] + 2)
         else:
-            if active_actions[0] == 'goto' or active_actions[0] == 'go' or active_actions[0] == 'move':
+            if active_actions[0] in loc_actions:
                 if active_actions[1] + 1 in active_locs:
                     has_dir_obj[0] = True
                     has_dir_obj.append(active_actions[1] + 1)
-            elif active_actions[0] == 'take' or active_actions[0] == 'open' or active_actions[0] == 'use' or active_actions[0] == 'look' or active_actions[0] == 'put':
+            elif active_actions[0] in obj_actions:
                 if active_actions[1] + 1 in active_objs:
                     has_dir_obj[0] = True
                     has_dir_obj.append(active_actions[1] + 1)
@@ -252,12 +262,18 @@ def parse_command(prompt,
                 has_prep[0] = True
                 has_prep.append(has_dir_obj[1] + 1)
                 
-        # Check for preposition adjective
+        # Check for preposition article
         if has_prep[0] == True:
             if has_prep[1] + 1 in active_arts:
-                if has_prep[1] + 2 in active_adjs:
+                has_prep_art[0] = True
+                has_prep_art.append(has_prep[1] + 1)
+                
+        # Check for preposition adjective
+        if has_prep[0] == True:
+            if has_prep_art[0]:
+                if has_prep_art[1] + 1 in active_adjs:
                     has_prep_adj[0] = True
-                    has_prep_adj.append(has_prep[1] + 2)
+                    has_prep_adj.append(has_prep_art[1] + 1)
                     
             elif has_prep[1] + 1 in active_adjs:
                 has_prep_adj[0] = True
@@ -273,7 +289,7 @@ def parse_command(prompt,
                 
         # Check for object of preposition (only if it has a preposition)
         if has_prep[0] == True:
-            if has_prep[1] + 1 in active_arts:
+            if has_prep_art[0]:
                 if has_sec_prep_adj[0] == True:
                     if has_sec_prep_adj[1] + 1 in active_objs:
                         has_prep_obj[0] = True
@@ -282,11 +298,11 @@ def parse_command(prompt,
                 elif has_prep_adj[0] == True:
                     if has_prep_adj[1] + 1 in active_objs:
                         has_prep_obj[0] = True
-                        has_prep_obj.append(has_adj[1] + 1)
+                        has_prep_obj.append(has_prep_adj[1] + 1)
                         
-                elif has_prep[1] + 2 in active_objs:
+                elif has_prep_art[1] + 1 in active_objs:
                     has_prep_obj[0] = True
-                    has_prep_obj.append(has_prep[1] + 2)
+                    has_prep_obj.append(has_prep_art[1] + 1)
                 
             else:
                 if has_sec_prep_adj[0] == True:
@@ -297,14 +313,33 @@ def parse_command(prompt,
                 elif has_prep_adj[0] == True:
                     if has_prep_adj[1] + 1 in active_objs:
                         has_prep_obj[0] = True
-                        has_prep_obj.append(has_adj[1] + 1)
+                        has_prep_obj.append(has_prep_adj[1] + 1)
                         
                 elif has_prep[1] + 1 in active_objs:
                     has_prep_obj[0] = True
-                    has_prep_obj.append(has_prep[1] + 1)       
+                    has_prep_obj.append(has_prep[1] + 1)
+                    
+                    
+        if has_prep_obj[0]:
+            if has_sec_prep_adj[0]:
+                if has_sec_adj[0]:
+                    obj_of_prep = '{} {} {}'.format(active_adjs[4], active_adjs[6], active_objs[2])
+                elif has_adj[0]:
+                    obj_of_prep = '{} {} {}'.format(active_adjs[2], active_adjs[4], active_objs[2])
+                else:
+                    obj_of_prep = '{} {} {}'.format(active_adjs[0], active_adjs[2], active_objs[2])
+            elif has_prep_adj[0]:
+                if has_sec_adj[0]:
+                    obj_of_prep = '{} {}'.format(active_adjs[4], active_objs[2])
+                elif has_adj[0]:
+                    obj_of_prep = '{} {}'.format(active_adjs[2], active_objs[2])
+                else:
+                    obj_of_prep = '{} {}'.format(active_adjs[0], active_objs[2])
+            else:
+                obj_of_prep = '{}'.format(active_objs[2])
                 
         # DEBUGGING PER ACTION METHOD:        
-        debug_action(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_adj, has_sec_prep_adj, has_prep_obj) 
+        #debug_action(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_art, has_prep_adj, has_sec_prep_adj, has_prep_obj) 
                
         if active_actions[0] == 'level':
             player.display_level()
@@ -331,7 +366,7 @@ def parse_command(prompt,
         elif active_actions[0] == 'open':
             open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi)
         elif active_actions[0] == 'put' or active_actions[0] == 'place':
-            put_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_obj, active_objs, active_arts, active_adjs, player, current_loc, envi)
+            put_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_obj, has_prep_art, active_objs, active_arts, active_adjs, active_preps, player, current_loc, envi, obj_of_prep)
         elif active_actions[0] == 'clear':
             for i in range(100):
                 print('')
@@ -350,10 +385,41 @@ def parse_command(prompt,
             
         if action_after: print('          ----------------------')
         
+        # Removes the used adjs, arts, preps, and objs
+        if has_article[0]:
+            active_arts.pop(0)
+            active_arts.pop(0)
+        if has_dir_obj[0]:
+            if active_actions[0] in loc_actions:
+                active_locs.pop(0)
+                active_locs.pop(0)
+            elif active_actions[0] in obj_actions:
+                active_objs.pop(0)
+                active_objs.pop(0)
+        if has_adj[0]:
+            active_adjs.pop(0)
+            active_adjs.pop(0)
+        if has_sec_adj[0]:
+            active_adjs.pop(0)
+            active_adjs.pop(0)
+        if has_prep[0]:
+            active_preps.pop(0)
+            active_preps.pop(0)
+        if has_prep_art[0]:
+            active_arts.pop(0)
+            active_arts.pop(0)
+        if has_prep_obj[0]:
+            active_objs.pop(0)
+            active_objs.pop(0)
+        if has_prep_adj[0]:
+            active_adjs.pop(0)
+            active_adjs.pop(0)
+        if has_sec_prep_adj[0]:
+            active_adjs.pop(0)
+            active_adjs.pop(0)
+            
         active_actions.pop(0)
         active_actions.pop(0)
-        
-                    
                     
     if num_actv_actions == 0:
         print_by_char('Invalid command!', 0.005)
@@ -373,9 +439,7 @@ def look_handle(active_actions, has_dir_obj, active_objs, envi, player):
     if has_dir_obj[0]:
             if active_objs[0] == 'around':
                 display_prompt(envi, player)
-                active_objs.pop(0)
-                active_objs.pop(0)
-                return
+                
             else:
                 print_by_char('Look at what?', 0.005)
     else:
@@ -449,20 +513,6 @@ def location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_o
                 print_by_char('{} to {} what?'.format(active_actions[0], active_arts[0]), 0.005)
         else:
             print_by_char('{} where?'.format(active_actions[0]), 0.005)
-            
-    # Returns (removes the used adjs, arts, and objs)
-    if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-    elif has_article[0] and has_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-    elif has_article[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_locs.pop(0), active_locs.pop(0)
-    elif has_sec_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-    elif has_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_locs.pop(0), active_locs.pop(0)
-    elif has_dir_obj[0]:
-        return active_locs.pop(0), active_locs.pop(0)
 
 
 def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):
@@ -526,20 +576,6 @@ def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
             print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.005)
         else:
             print_by_char('{} what?'.format(active_actions[0]), 0.005)
-            
-    # Returns (removes the used adjs, arts, and objs)
-    if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_article[0] and has_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_article[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_sec_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_dir_obj[0]:
-        return active_objs.pop(0), active_objs.pop(0)
 
 
 # Location handling method
@@ -608,23 +644,9 @@ def item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
             print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.005)
         else:
             print_by_char('{} what?'.format(active_actions[0]), 0.005)
-            
-    # Returns (removes the used adjs, arts, and objs)
-    if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_article[0] and has_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_article[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_sec_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_dir_obj[0]:
-        return active_objs.pop(0), active_objs.pop(0)
     
     
-def put_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_obj, active_objs, active_arts, active_adjs, player, current_loc, envi):
+def put_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_obj, has_prep_art, active_objs, active_arts, active_adjs, active_preps, player, current_loc, envi, obj_of_prep):
     placable_items = ['laptop',
                     'phone']
     # Handles issue of removing objects from active_objs list when no action appears before it
@@ -650,62 +672,87 @@ def put_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, h
     if active_objs:
         if active_objs[0] not in placable_items:
             has_dir_obj[0] = False
-    
             
-    
+            
+    container_found = False
     item_found = False
     phrase = None
     
     if has_dir_obj[0]:
-        
         # Build phrase based on number or lack of adjectives
         if has_sec_adj[0]:
             phrase = '{} {} {}'.format(active_adjs[0], active_adjs[2], active_objs[0])
+                        
         elif has_adj[0]:
             phrase = '{} {}'.format(active_adjs[0], active_objs[0])
+                        
         else:
             phrase = '{}'.format(active_objs[0])
-            
-        # Check if the environment has any items
-        if player.get_inventory():
-            put_run = False
-            while not put_run:
+        
+        if has_prep[0]:
+            if has_prep_obj[0]:
+                # Check if the player has any items
+                if player.get_inventory():
+                    put_run = False
+                    
+                    while not put_run:
+                        for item in player.get_inventory():
+                            if phrase == item:
+                                item_found = True
+                                for container in envi.containers:
+                                    if obj_of_prep == container:
+                                        container_found = True
+                                        envi.containers[obj_of_prep].add_item(item, player.get_inventory()[item], player, active_actions, obj_of_prep)
+                                        del player.get_inventory()[item]
+                                        player.sub_weight(envi.containers[obj_of_prep].inventory[phrase].get_weight())
+                                        put_run = True
+                                        break
+                                if not container_found:
+                                    print_by_char('>>> There is no {} here.'.format(obj_of_prep), 0.005)
+                                break
+                                    
+                        if not item_found:
+                            print_by_char('>>> You have no {}.'.format(phrase), 0.005)
+                        break
+                else:
+                    print_by_char('>>> You have no items.', 0.005)
+                    
+            else:
                 for item in player.get_inventory():
                     if phrase == item:
-                        if has_prep[0] == True:
-                            if has_prep_obj[0] == True:
-                                envi
-                        player.add_item(envi, item, active_actions[0])
                         item_found = True
-                        take_run = True
-                        break
-                break
-            if not item_found:
-                print_by_char('>>> There is no {} here.'.format(phrase), 0.005)
+                        
+                if not item_found:
+                    print_by_char('>>> You have no {}.'.format(phrase), 0.005)
+                elif has_article[0]:
+                    if has_prep_art[0]:
+                        print_by_char('{} {} {} {} {} what?'.format(active_actions[0], active_arts[0], phrase, active_preps[0], active_arts[2]), 0.005)
+                    else:
+                        print_by_char('{} {} {} {} what?'.format(active_actions[0], active_arts[0], phrase, active_preps[0]), 0.005)
+                else:
+                    if has_prep_art[0]:
+                        print_by_char('{} {} {} {} what?'.format(active_actions[0], phrase, active_preps[0], active_arts[0]), 0.005)
+                    else:
+                        print_by_char('{} {} {} what?'.format(active_actions[0], phrase, active_preps[0]), 0.005)
+                
         else:
-            print_by_char('>>> There are no items here.', 0.005)
-            
+            for item in player.get_inventory():
+                if phrase == item:
+                    item_found = True
+                    
+            if not item_found:
+                print_by_char('>>> You have no {}.'.format(phrase), 0.005)
+            elif has_article[0]:
+                print_by_char('{} {} {} where?'.format(active_actions[0], active_arts[0], phrase), 0.005)
+            else:
+                print_by_char('{} {} where?'.format(active_actions[0], phrase), 0.005)
+                
     else:
-        
         # Since no direct objects exist, print question depending on the presence of an article
         if has_article[0]:
-            print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.005)
+            print_by_char('{} {} what where?'.format(active_actions[0], active_arts[0]), 0.005)
         else:
-            print_by_char('{} what?'.format(active_actions[0]), 0.005)
-            
-    # Returns (removes the used adjs, arts, and objs)
-    if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_article[0] and has_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_article[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_sec_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_dir_obj[0]:
-        return active_objs.pop(0), active_objs.pop(0)
+            print_by_char('{} what where?'.format(active_actions[0]), 0.005)
     
 
 def use_item(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):
@@ -750,7 +797,7 @@ def use_item(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, act
         else:
             phrase = '{}'.format(active_objs[0])
             
-        # Check if the environment has any doors
+        # Check if the player has any items
         if player.get_inventory():
             use_run = False
             while not use_run:
@@ -772,20 +819,6 @@ def use_item(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, act
             print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.005)
         else:
             print_by_char('{} what?'.format(active_actions[0]), 0.005)
-            
-    # Returns (removes the used adjs, arts, and objs)
-    if has_article[0] and has_sec_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_article[0] and has_adj[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_article[0] and has_dir_obj[0]:
-        return active_arts.pop(0), active_arts.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_sec_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_adj[0] and has_dir_obj[0]:
-        return active_adjs.pop(0), active_adjs.pop(0), active_objs.pop(0), active_objs.pop(0)
-    elif has_dir_obj[0]:
-        return active_objs.pop(0), active_objs.pop(0)
     
     
 def is_action_after(active_actions):
@@ -799,7 +832,10 @@ def is_action_after(active_actions):
                'stats',
                'status',
                'use',
-               'change']
+               'change',
+               'inventory',
+               'put',
+               'place']
     
     # Specials
     if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
@@ -897,7 +933,7 @@ def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, acti
     print('')
     
 
-def debug_action(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_adj, has_sec_prep_adj, has_prep_obj):
+def debug_action(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_art, has_prep_adj, has_sec_prep_adj, has_prep_obj):
     print('')
     print('DEBUGGING PER ACTION({} at {}):'.format(active_actions[0], active_actions[1]))
     print('Has article: {}'.format(has_article[0]))
@@ -905,6 +941,7 @@ def debug_action(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj,
     print('Has second adjective: {}'.format(has_sec_adj[0]))
     print('Has direct object: {}'.format(has_dir_obj[0]))
     print('Has preposition: {}'.format(has_prep[0]))
+    print('Has preposition article: {}'.format(has_prep_art[0]))
     print('Has preposition adjective: {}'.format(has_prep_adj[0]))
     print('Has second preposition adjective: {}'.format(has_sec_prep_adj[0]))
     print('Has object of preposition: {}'.format(has_prep_obj[0])) 

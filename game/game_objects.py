@@ -81,6 +81,10 @@ class Player:
         
     def get_weight(self):
         return self.weight
+    
+    
+    def sub_weight(self, sub_amt):
+        self.weight -= sub_amt
         
         
     def set_name(self, name):
@@ -326,6 +330,15 @@ class Container():
     
     def get_inventory(self):
         return self.inventory
+    
+    
+    def add_item(self, item_key, item_value, player, active_actions, obj_of_prep):
+        self.inventory[item_key] = item_value
+        if active_actions[0] == 'put':
+            print_by_char('>>> {} {} the {} in the {}.'.format(player.get_name(), active_actions[0], item_key, obj_of_prep), 0.005)
+        else:
+            print_by_char('>>> {} {}ed the {} in the {}.'.format(player.get_name(), active_actions[0], item_key, obj_of_prep), 0.005)
+        
     
 
 class Locker(Container):
