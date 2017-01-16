@@ -3,8 +3,7 @@ Created on Dec 21, 2016
 
 @author: Hunter Malm
 '''
-from game_defs import print_by_char
-from game_defs import display_prompt
+from game_defs import print_by_char, display_prompt, print_dots
 import random
 import attacks
 
@@ -67,7 +66,7 @@ class Player:
                 print_by_char('>>> {} moved to the {}.'.format(self.name, phrase), 0.01)
             if location.first_visit:
                 self.visited.append(location.get_name())
-                print('           --------------------')
+                print('          ----------------------')
                 display_prompt(location, player)
                 
             
@@ -150,7 +149,7 @@ class Front_lobby(Environment):
     
     # Prompts:
     location = ["Location: Front Lobby"]
-             #'------------------------------------------'
+             #'--------------------------------------------'
     opener = ['You enter the doors of the Internet.  You',
               'walk into a bright room with a reception',
               'desk to the right and a door to the left.',
@@ -171,7 +170,7 @@ class Front_lobby(Environment):
     base_01 = ['There is a door and a reception desk.  The',
                'desk has a computer on it labeled',
                '"Lobby Computer".']
-              #'------------------------------------------'
+              #'--------------------------------------------'
     base_02 = ['There is a reception desk with a computer',
                'on it.  The computer is labeled "Reception',
                'Computer".  A doorway leads to a hall.']
@@ -237,7 +236,7 @@ class South_Hall(Environment):
     
      # Prompts:
     location = ["Location: South Hall"]
-             #'------------------------------------------'
+             #'--------------------------------------------'
     opener = ["             -The South Hall-             ",
               "",
               "You step into the hall.  The south hall is",
@@ -298,7 +297,7 @@ class Door(object):
             if self.unlocked:
                 self.open = True
                 print_by_char('>>> Opened the {}.'.format(phrase), 0.01)
-                print('           --------------------')
+                print('          ----------------------')
                 if self.get_name() == 'south hall door':
                     print(self.south_hall_door_opener)
                 
@@ -331,55 +330,213 @@ class Phone(Item):
                 print('You entered the wrong password')
             #active = False
 
-class Laptop(Item):
+class Laptop(Item): 
     
-    username = None
-    password = None
-    pass_hint = None
-    
-    def __init__(self, un, pw, ph):
-        self.password = pw
-        self.username = un
-        self.pass_hint = ph
-    
+    def __init__(self):
+            self.accounts = {}
+            self.power_state = False
+            self.default_acc = None
+            self.current_acc = None
+            self.logged_in = False
         
     def use(self):
         
-        active = True
-        while active:
-            print_by_char('"Welcome ' + self.username, 0.01)
+        print_by_char('"Booting', 0.01, False), print_dots(2, True)
+        self.power_state = True
+        
+        while self.power_state:
+            
+            if not self.accounts:
+                print_by_char('You must create an account before you can', 0.01)
+                print_by_char('use the computer.', 0.01)
+                print('')
+                self.current_acc = self.create_account()
+                print('')
+            
+            if self.default_acc:
+                self.current_acc = self.default_acc
+                
+            while not self.logged_in:
+                if self.current_acc:
+                    print_by_char('Welcome, {}.'.format(self.current_acc), 0.01)
+                    print_by_char('>> 1: Login', 0.01)
+                    print_by_char('>> 2: Switch accounts', 0.01)
+                    print_by_char('>> 3: Shutdown', 0.01)
+                    print_by_char('>> 4: Create new account', 0.01)
+                    
+                    while True:
+                        print('')
+                        print_by_char('Enter number : ', 0.01, False)
+                        option = input()
+                        print('')
+                        if option == '1':
+                            self.logged_in = self.accounts[self.current_acc].login()
+                            break
+                        elif option == '2':
+                            self.current_acc = self.switch_acc()
+                            break
+                        elif option == '3':
+                            return self.shut_down()
+                        elif option == '4':
+                            self.current_acc = self.create_account()
+                            break
+                        else:
+                            print_by_char('Please enter a number.', 0.01)
+                else:
+                    self.current_acc = self.switch_acc()
+            
+            while self.logged_in:
+                self.logout()
+            
+            return self.shut_down()
+                    
+            
+        
+    
+    def create_account(self):
+        name_set = False
+        password_set = False
+        
+        while name_set is False:
+            name_taken = False
+            print_by_char('Create a username: ', 0.01, False)
+            name = input()
+            
+            for account in self.accounts:
+                if name == account:
+                    name_taken = True
+                    print('')
+                    print_by_char("> This name is already taken.", 0.01)
+                    print('')
+                    break
+            
+            if len(name) < 20 and not name_taken:
+                name_set = True
+            elif len(name) > 20:
+                print('')
+                print_by_char('> Max amount of characters: 20', 0.01)
+                print_by_char('> Try again..', 0.01)
+                print('')
+        
+        while password_set is False:
+            print_by_char('Create a password: ', 0.01, False)
+            password = input()
+            pass_chars = []
+            for char in password: pass_chars.append(char)
+            
+            if password == 'quit':
+                print('')
+                print_by_char('> You cannot use that as a password!', 0.01)
+                print('')
+                continue
+            elif ' ' in pass_chars:
+                print('')
+                print_by_char('> You cannot include a space!', 0.01)
+                print('')
+                continue
+            
+            print_by_char('Re-enter password: ', 0.01, False)
+            retype = input()
+            
+            if password == retype:
+                password_set = True
+            else:
+                print('')
+                print_by_char('> Passwords do not match!', 0.01)
+                print('')
+            
+        print_by_char('Password hint: ', 0.01, False)
+        pass_hint = input()
+        
+        print("")
+        self.accounts[name] = self.Account(name, password, pass_hint)
+        print_dots(3)
+        print_by_char(' Account created successfully.', 0.01)
+        print('')
+        while True:
+            print_by_char('Set as default? (y\\n): ', 0.01, False)
+            option = input().lower()
+            print('')
+            if option == "y" or option == "yes":
+                self.default_acc = name
+                break
+            elif option == "n" or option == "no":
+                break
+            else:
+                print_by_char('> Please answer yes or no.', 0.01)
+                print('')
+        
+        return name
+        
+    
+    def switch_acc(self):
+        print_by_char('Please select an account:', 0.01)
+        
+        acc_dict = {}
+        
+        counter = 1
+        for account in self.accounts:
+            acc_dict[str(counter)] = account
+            print_by_char('>> {}: {}'.format(counter, account), 0.01)
+            counter += 1
+        
+        while True:
+            print('')
+            print_by_char('Enter number : ', 0.01, False)
+            option = input().lower()
             print('')
             
-            locked = True
-            while locked:
+            if option in acc_dict:
+                return acc_dict[option]
+            else:
+                print_by_char('> You must enter a number.', 0.01)
+    
+    
+    def logout(self):
+        print('')
+        print_by_char('Logging out..', 0.01)
+        self.logged_in = False
+        print('')
+    
+    
+    class Account():
+        
+        def __init__(self, un, pw, ph):
+            self.password = pw
+            self.username = un
+            self.pass_hint = ph
+            
+        def get_username(self):
+            return self.username
+        
+        def login(self):
+            while True:
                 print_by_char('Please enter your password: ', 0.01, False)
                 response = input()
                 
                 if response == self.password:
-                    locked = False
                     print('')
                     print_by_char('> Computer unlocked.', 0.01)
-                    print('')
+                    return True
                 elif response == 'quit':
                     print('')
                     print_by_char('> Quitting.."', 0.01)
-                    break
+                    return False
                 else:
                     print('')
                     print_by_char('> Wrong password!', 0.01)
                     self.display_pass_hint()
                     print('')
+                    
+        
+        def display_pass_hint(self):
+            print_by_char('> Password hint: ' + self.pass_hint, 0.01)
             
-            while not locked:
-                print_by_char('Well, there\'s nothing to do here.  Leaving..."', 0.01)
-                active = False
-                break
             
-            active = False
-                
-                
-    def display_pass_hint(self):
-        print_by_char('> Password hint: ' + self.pass_hint, 0.01)
+    def shut_down(self):
+        print_by_char('Shutting down', 0.01, False), print_dots(2), print('"')
+        self.power_state = False
+        
         
         
 class Enemy():

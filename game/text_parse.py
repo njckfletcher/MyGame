@@ -19,7 +19,7 @@ def parse_command(prompt,
     # Parser input call and variables
     print_by_char(prompt, 0.01, False)
     raw_command = input().lower()
-    print('------------------------------------------')
+    print('--------------------------------------------')
     raw_parts = raw_command.split()
     raw_word_count = len(raw_parts)
     fixed_parts = []
@@ -260,7 +260,7 @@ def parse_command(prompt,
         else:
             print_by_char('Action not ready!', 0.01)
             
-        if action_after: print('           --------------------')
+        if action_after: print('          ----------------------')
         
         active_actions.pop(0)
         active_actions.pop(0)
