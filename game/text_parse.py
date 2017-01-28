@@ -6,9 +6,7 @@ Created on Dec 21, 2016
 
 #from game import main
 import pickle, os
-from game_defs import print_by_char
-from game_defs import save_game
-from game_defs import display_prompt
+from game_defs import print_by_char, save_game, display_prompt
 from profanity import profanity
 
 # Text parse method
@@ -699,7 +697,7 @@ def item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
                             take_run = True
                             player.add_item(phrase, inventory[phrase])
                             envi.remove_item(phrase)
-                            print_by_char('{} {} the {}.'.format(player.get_name(), past_action, phrase), 0.005)
+                            print_by_char('>>> {} {} the {}.'.format(player.get_name(), past_action, phrase), 0.005)
                             break
                     
             if not item_found:

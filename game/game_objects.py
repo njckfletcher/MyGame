@@ -19,6 +19,7 @@ class Player:
         self.journey = 1
         self.visited = ['Front Lobby']    
         self.weight = 1
+        self.max_weight = 5
         self.inventory = {'laptop': self.main_laptop}
         
         
@@ -134,9 +135,8 @@ class Player:
         print_by_char('Name: {} | Journey: {} | Level: {}'.format(self.name, self.journey, self.level), 0.005)
         self.display_health()
         self.display_location()
+        print_by_char('Weight: {} | Max weight: {}'.format(self.weight, self.max_weight), 0.005)
         self.display_inventory()
-        self.display_weight()
-        
         
 class Environment:
     name = None

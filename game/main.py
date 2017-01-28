@@ -7,7 +7,7 @@ import game_defs, game_objects, text_parse
 import os
 import random
 import pickle
-from game_defs import print_by_char
+from game_defs import print_by_char, print_dots
 import time
 
 # System objects
@@ -61,5 +61,7 @@ while running:
             game_defs.remove_char(hero.get_name(), saves_dir)
             command_in_progress = False
     
-    print_by_char('Quitting..', 0.005)        
+    print_by_char('Quitting 7 Stories', 0.005, False)
+    print_dots(2)
+    print('\n--------------------------------------------') 
     break

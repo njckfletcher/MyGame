@@ -3,7 +3,7 @@ Created on Jan 7, 2017
 
 @author: root
 '''
-from game import game_defs
+import game_defs
 import os
 
 if os.name == 'posix':
