@@ -5,19 +5,12 @@ Created on Dec 31, 2016
 '''
 from game import game_objects
 
-lobby = game_objects.FB_lobby()
+envi = game_objects.South_Hall()
 
-#print(lobby.south_hall_door.open)
-#lobby.open_door('south hall door')
-#print(lobby.south_hall_door.open)
-#print(lobby.south_hall_door.open)
-
-
-
-print(lobby.get_avail_locs())
-print(lobby.get_avail_locs())
-print(lobby.get_avail_locs())
-lobby.open_door('south hall door')
-print(lobby.get_avail_locs())
-lobby.open_door('south hall door')
-print(lobby.get_avail_locs())
+containers = envi.containers
+for container in containers:
+    
+    inventory = containers[container].get_inventory()
+    for item in inventory:
+        
+        print(item)

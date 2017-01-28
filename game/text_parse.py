@@ -9,16 +9,25 @@ import pickle, os
 from game_defs import print_by_char
 from game_defs import save_game
 from game_defs import display_prompt
+from profanity import profanity
 
 # Text parse method
 def parse_command(prompt, 
                   player, 
                   map_objects,
-                  saves_dir):
+                  saves_dir,
+                  just_saved):
     # Parser input call and variables
     print_by_char(prompt, 0.005, False)
     raw_command = input().lower()
+    contains_profanity = profanity.contains_profanity(raw_command)
     print('--------------------------------------------')
+    
+    if contains_profanity:
+        player.receive_damage(20)
+        print_by_char('>>> 20 point penalty for using profanity!', 0.005)
+        raw_command = ''
+        
     raw_parts = raw_command.split()
     raw_word_count = len(raw_parts)
     fixed_parts = []
@@ -28,6 +37,9 @@ def parse_command(prompt,
                    'move']
     
     obj_actions = ['take',
+                   'grab',
+                   'pick',
+                   'pickup',
                    'open',
                    'use',
                    'look',
@@ -41,9 +53,6 @@ def parse_command(prompt,
                "location",
                "name", 
                "weight",
-               "pickup",
-               "pick",
-               "grab",
                "clear",
                "change",
                "stats",
@@ -82,21 +91,24 @@ def parse_command(prompt,
             'locker']
     active_objs = []
     
-    adjs = ['south',
-            'front',
-            'dark',
-            'wooden',
-            'green',
-            'blue',
-            'red',
-            'silver',
-            'big',
-            'left',
-            'right',
-            'shiny',
-            'old',
-            'forbidden',
-            'random']
+    adjs = ["south",
+            "front",
+            "dark",
+            "wooden",
+            "green",
+            "blue",
+            "red",
+            "silver",
+            "big",
+            "left",
+            "right",
+            "shiny",
+            "old",
+            "forbidden",
+            "random",
+            "desperation",
+            "gentlemans",
+            "gentleman's"]
     active_adjs = []
     
     preps = ['in',
@@ -109,14 +121,15 @@ def parse_command(prompt,
                     'up',
                     'and']
     
-    
-    for word in raw_parts:
-        fixed_parts.append(word)
-    
-    
     # Remove filler words from fixed_parts and set count
-    fixed_parts = [x for x in fixed_parts if x not in filter_words]
-    fixed_word_count = len(fixed_parts)            
+    fixed_parts = [x for x in raw_parts if x not in filter_words]
+    fixed_word_count = len(fixed_parts)   
+    
+    
+    # Specials
+    for i in range(len(fixed_parts)):
+        if fixed_parts[i] == "gentlemans":
+            fixed_parts[i] = "gentleman's"      
                 
     # Add actions and action indexes to active_actions list
     for i in range(len(fixed_parts)):
@@ -168,6 +181,12 @@ def parse_command(prompt,
             if fixed_parts[i] == obj:
                 active_objs.append(fixed_parts[i])
                 active_objs.append(i)
+                
+    
+    saved = False
+    for action in active_actions:
+        if action == 'save':
+            saved = True
                 
                 
     ##########################################
@@ -361,7 +380,7 @@ def parse_command(prompt,
         elif (active_actions[0] == 'goto') or (active_actions[0] == 'move') or (active_actions[0] == 'go'):
             location_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_locs, active_arts, active_adjs, player, envi, map_objects, locations)
         elif active_actions[0] == 'take' or active_actions[0] == 'grab' or active_actions[0] == 'pickup' or active_actions[0] == 'pick':
-            item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, current_loc, envi)
+            item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_obj, has_prep_art, active_objs, active_arts, active_adjs, active_preps, player, current_loc, envi, obj_of_prep)
         elif active_actions[0] == 'use':
             use_item(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi)
         elif active_actions[0] == 'open':
@@ -373,7 +392,11 @@ def parse_command(prompt,
                 print('')
         elif active_actions[0] == 'save':
             save_game(player, map_objects, saves_dir)
+            saved = True
         elif active_actions[0] == 'quit':
+            if not saved and just_saved == False:
+                save_before_quit(player, map_objects, saves_dir)
+                print('')
             return 'quit'
         elif active_actions[0] == 'look':
             look_handle(active_actions, has_dir_obj, active_objs, envi, player)
@@ -422,8 +445,13 @@ def parse_command(prompt,
         active_actions.pop(0)
         active_actions.pop(0)
                     
-    if num_actv_actions == 0:
+    if num_actv_actions == 0 and not contains_profanity:
         print_by_char('Invalid command!', 0.005)
+        
+    if saved:
+        return 'saved'
+    else:
+        return 'not saved'
     
 
 def look_handle(active_actions, has_dir_obj, active_objs, envi, player):
@@ -580,7 +608,7 @@ def open_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
 
 
 # Location handling method
-def item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, current_loc, envi):
+def item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_obj, has_prep_art, active_objs, active_arts, active_adjs, active_preps, player, current_loc, envi, obj_of_prep):
     takable_items = ['laptop',
                     'phone']
     # Handles issue of removing objects from active_objs list when no action appears before it
@@ -606,45 +634,79 @@ def item_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, 
     if active_objs:
         if active_objs[0] not in takable_items:
             has_dir_obj[0] = False
-    
             
+    if active_actions[0] == 'take':
+        past_action = 'took'
+    elif active_actions[0] == 'grab':
+        past_action = 'grabbed'
+    else:
+        past_action = 'picked up'
+        active_actions[0] = 'pick up'
     
+    container_found = False
     item_found = False
     phrase = None
+    take_run = False
     
     if has_dir_obj[0]:
-        
-        # Build phrase based on number or lack of adjectives
         if has_sec_adj[0]:
             phrase = '{} {} {}'.format(active_adjs[0], active_adjs[2], active_objs[0])
+                        
         elif has_adj[0]:
             phrase = '{} {}'.format(active_adjs[0], active_objs[0])
+                        
         else:
             phrase = '{}'.format(active_objs[0])
-            
-        # Check if the environment has any items
-        if envi.get_inventory():
-            take_run = False
-            while not take_run:
-                for item in envi.get_inventory():
-                    if phrase == item:
-                        player.add_item(envi, item, active_actions[0])
-                        item_found = True
-                        take_run = True
-                        break
-                break
-            if not item_found:
-                print_by_char('>>> There is no {} here.'.format(phrase), 0.005)
-        else:
-            print_by_char('>>> There are no items here.', 0.005)
-            
-    else:
         
-        # Since no direct objects exist, print question depending on the presence of an article
-        if has_article[0]:
-            print_by_char('{} {} what?'.format(active_actions[0], active_arts[0]), 0.005)
+        if has_prep[0]:
+            if has_prep_obj[0]:
+                if envi.containers:
+                    containers = envi.containers
+                    
+                    for container in containers:
+                        if container == obj_of_prep:
+                            container_found = True
+                            inventory = containers[container].get_inventory()
+                            while not take_run:
+                                for item in inventory:
+                                    if phrase == item:
+                                        item_found = True
+                                        take_run = True
+                                        player.add_item(phrase, inventory[phrase])
+                                        envi.containers[container].remove_item(phrase)
+                                        print_by_char('>>> {} {} the {} {} the {}.'.format(player.get_name(), past_action, phrase, active_preps[0], obj_of_prep), 0.005)
+                                        break
+                                            
+                                if not item_found:
+                                    print_by_char('There is no {} in the {}.'.format(phrase, obj_of_prep), 0.005)
+                                    break
+                                        
+                    if not container_found:
+                        print_by_char('There is no {} here.'.format(obj_of_prep), 0.005)
+                                
+                else:
+                    print_by_char('There is no {} here.'.format(obj_of_prep), 0.005)
+            else:
+                print_by_char('>>> {} the {} {} the what?'.format(active_actions[0], phrase, active_preps[0]), 0.005)
         else:
-            print_by_char('{} what?'.format(active_actions[0]), 0.005)
+            if envi.inventory:
+                inventory = envi.inventory
+                
+                while not take_run:
+                    for item in inventory:
+                        if phrase == item:
+                            item_found = True
+                            take_run = True
+                            player.add_item(phrase, inventory[phrase])
+                            envi.remove_item(phrase)
+                            print_by_char('{} {} the {}.'.format(player.get_name(), past_action, phrase), 0.005)
+                            break
+                    
+            if not item_found:
+                print_by_char('There is no {} here.'.format(phrase), 0.005)
+        
+    else:
+        print_by_char('{} what?'.format(active_actions[0]), 0.005)    
     
     
 def put_handle(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_obj, has_prep_art, active_objs, active_arts, active_adjs, active_preps, player, current_loc, envi, obj_of_prep):
@@ -836,7 +898,12 @@ def is_action_after(active_actions):
                'change',
                'inventory',
                'put',
-               'place']
+               'place',
+               'take',
+               'grab',
+               'pick',
+               'pickup',
+               'quit']
     
     # Specials
     if  len(active_actions)/2 > active_actions.index(active_actions[0]) + 1:
@@ -917,6 +984,27 @@ def change_name(saves_dir, active_actions, player, map_objects):
             print_by_char('change what?', 0.005)
     else:
         print_by_char('change what?', 0.005)
+        
+
+def save_before_quit(player, map_objects, saves_dir):
+    
+    while True:
+        print_by_char('Would you like to save before quitting? (y\\n): ', 0.005, False)
+        decision = input().lower()
+        
+        if decision == "y" or decision == "yes":
+            print('')
+            save_game(player, map_objects, saves_dir)
+            break
+        
+        elif decision == "n" or decision == "no":
+            break
+        
+        else:
+            print('')
+            print_by_char('Please answer yes or no.', 0.005)
+            print('')
+    
 
 
 def debug_command(raw_parts, raw_word_count, fixed_parts, fixed_word_count, active_actions, num_actv_actions, active_arts, active_locs, active_objs):

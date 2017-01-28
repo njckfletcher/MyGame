@@ -95,10 +95,11 @@ def load_option(saves_dir):
                 
                 
         print_by_char('--------------------------------------------', 0.005)
-        print_by_char('Enter character number or use "new" to', 0.005)
-        print_by_char('create a new one.  To remove a character,', 0.005)
-        print_by_char('use "delete #" with the number of the', 0.005)
-        print_by_char('character you want to delete.', 0.005)
+        print_by_char('Available options:', 0.005)
+        print_by_char('> new', 0.005)
+        print_by_char('> load [number]', 0.005)
+        print_by_char('> reset [number]', 0.005)
+        print_by_char('> delete, erase, remove [number]', 0.005)
             
         while True:    
             print('--------------------------------------------')
@@ -113,15 +114,16 @@ def load_option(saves_dir):
                 if part == "delete" or part == "remove" or part == "erase":
                     if len(parts) > parts.index(part) + 1:
                         if parts[parts.index(part) + 1] in char_dict:
+                            char_name = char_dict[parts[parts.index(part) + 1]]
                             print('--------------------------------------------')
                             if part == "delete":
-                                print_by_char('Deleted ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.005)
+                                print_by_char('Deleted ' + char_name + '.', 0.005)
                             elif part == "remove":
-                                print_by_char('Removed ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.005)
+                                print_by_char('Removed ' + char_name + '.', 0.005)
                             else:
-                                print_by_char('Erased ' + char_dict[parts[parts.index(part) + 1]] + ".", 0.005)
-                            remove_char(char_dict[parts[parts.index(part) + 1]], saves_dir)
-                            char_names.remove(char_dict[parts[parts.index(part) + 1]])
+                                print_by_char('Erased ' + char_name + '.', 0.005)
+                            remove_char(char_name, saves_dir)
+                            char_names.remove(char_name)
                             del char_dict[parts[parts.index(part) + 1]]
                             chars_modified = True
                             print('--------------------------------------------')
@@ -134,13 +136,42 @@ def load_option(saves_dir):
                         print('--------------------------------------------')
                         print_by_char('You must provide a character to ' + part + '.', 0.005)
                         break
+                elif part == 'reset':
+                    if len(parts) > parts.index(part) + 1:
+                        if parts[parts.index(part) + 1] in char_dict:
+                            char_name = char_dict[parts[parts.index(part) + 1]]
+                            print('--------------------------------------------')
+                            print_by_char('Reset '  + char_name + '.', 0.005)
+                            reset_char(char_name, saves_dir)
+                            break
+                        else:
+                            print('--------------------------------------------')
+                            print_by_char('You must provide a character to ' + part + '.', 0.005)
+                            break
+                    else:
+                        print('--------------------------------------------')
+                        print_by_char('You must provide a character to ' + part + '.', 0.005)
+                        break
+                            
                 elif part == "new":
                     print('--------------------------------------------')
                     return create_char(saves_dir)
-                elif part in char_dict:
-                    print('--------------------------------------------')
-                    print_by_char('Loaded ' + char_dict[part] + '.', 0.005)
-                    return char_dict[part]
+                elif part == 'load':
+                    if len(parts) > parts.index(part) + 1:
+                        if parts[parts.index(part) + 1] in char_dict:
+                            char_name = char_dict[parts[parts.index(part) + 1]]
+                            print('--------------------------------------------')
+                            print_by_char('Loaded '  + char_name + '.', 0.005)
+                            return char_dict[parts[parts.index(part) + 1]]
+                        else:
+                            print('--------------------------------------------')
+                            print_by_char('You must provide a character to ' + part + '.', 0.005)
+                            break
+                    else:
+                        print('--------------------------------------------')
+                        print_by_char('You must provide a character to ' + part + '.', 0.005)
+                        break
+                    
                 else:
                     print('--------------------------------------------')
                     print_by_char('Invalid command!', 0.005)
@@ -229,6 +260,14 @@ def create_char(saves_dir):
     getpass.getpass("")
     
     return name
+
+
+def reset_char(name, saves_dir):
+    for file in os.listdir(saves_dir):
+        if file.endswith(".dat"):
+            if name.lower() + ".dat" == file.lower():
+                os.remove(saves_dir + name + '.dat')
+    init_char(name, saves_dir)
     
 
 def init_char(name, saves_dir):

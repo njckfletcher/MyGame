@@ -10,8 +10,17 @@ if os.name == 'posix':
     saves_dir = os.getcwd() + "/saves/"
 else:
     saves_dir = os.getcwd() + "\saves\\"
-    
-os.remove(saves_dir + 'Hunter' + '.dat')
+
+reset = False
+for file in os.listdir(saves_dir):
+    if file.endswith(".dat"):
+        if "hunter.dat" == file.lower():
+            reset = True
+            os.remove(saves_dir + 'Hunter' + '.dat')
+            
 game_defs.init_char('Hunter', saves_dir)
 
-print('Character reset.')
+if reset:
+    print('Hunter reset.'.format())
+else:
+    print('Hunter created.')

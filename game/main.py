@@ -22,6 +22,7 @@ system_prompts = ["What do you want to do?: ",
                   "What now?: ", 
                   "What would you like to do next?: ", 
                   "Enter your command(s): "]
+just_saved = False
 
 #game_defs.intro()
         
@@ -36,35 +37,29 @@ while running:
     time.sleep(0.5)
     print('\n--------------------------------------------')
     game_defs.display_prompt(map_objects[hero.get_location()], hero)
-        
                     
     while command_in_progress:
         print('--------------------------------------------')
         arg = text_parse.parse_command(system_prompts[random.randrange(len(system_prompts))], 
                                  hero,  
                                  map_objects,
-                                 saves_dir)
+                                 saves_dir,
+                                 just_saved)
+        hero.just_saved = False
         
         if arg == 'quit':
-            print_by_char('Quitting..', 0.005)
+            command_in_progress = False
+        elif arg == 'saved':
+            just_saved = True
+        elif arg == 'not saved':
+            just_saved = False
+        
+        if hero.get_health() <= 0:
+            print('')
+            print_by_char('You died..  Game over.', 0.005)
+            print('')
+            game_defs.remove_char(hero.get_name(), saves_dir)
             command_in_progress = False
     
-    while not command_in_progress:
-        print('--------------------------------------------')
-        
-        print_by_char('Would you like to save before quitting? (y\\n): ', 0.005, False)
-        decision = input().lower()
-        
-        if decision == "y" or decision == "yes":
-            print('--------------------------------------------')
-            game_defs.save_game(hero, map_objects, saves_dir)
-            break
-        
-        elif decision == "n" or decision == "no":
-            break
-        
-        else:
-            print('--------------------------------------------')
-            print_by_char('Please answer yes or no.', 0.005)
-            
+    print_by_char('Quitting..', 0.005)        
     break

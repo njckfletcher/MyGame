@@ -9,8 +9,8 @@ import attacks
 
 class Player:
     
-    
     def __init__(self, name):
+        self.just_saved = False
         self.main_laptop = Laptop()
         self.name = name
         self.health = 100
@@ -20,6 +20,10 @@ class Player:
         self.visited = ['Front Lobby']    
         self.weight = 1
         self.inventory = {'laptop': self.main_laptop}
+        
+        
+    def just_saved(self):
+        self.just_saved = True
         
         
     def receive_damage(self, damage):
@@ -48,6 +52,10 @@ class Player:
         
     def display_health(self):
         print_by_char('Health: {}%'.format(self.health), 0.005)
+        
+        
+    def get_health(self):
+        return self.health
         
         
     def display_location(self):
@@ -110,16 +118,15 @@ class Player:
         return self.inventory
         
         
-    def add_item(self, envi, item, action):
-        self.inventory[item] = envi.get_inventory()[item]
-        del envi.get_inventory()[item]
-        self.weight += self.inventory[item].get_weight()
-        if action == 'take':
-            print_by_char('>>> {} took the {}.'.format(self.name, item), 0.005)
-        elif action == 'pick' or action == 'pickup':
-            print_by_char('>>> {} picked up the {}.'.format(self.name, item), 0.005)
-        else:
-            print_by_char('>>> {} grabbed the {}.'.format(self.name, item), 0.005)
+    def add_item(self, item_key, item_value):
+        self.inventory[item_key] = item_value
+        self.weight += self.inventory[item_key].get_weight()
+        #if action == 'take':
+        #    print_by_char('>>> {} took the {}.'.format(self.name, item_key), 0.005)
+        #elif action == 'pick' or action == 'pickup':
+        #    print_by_char('>>> {} picked up the {}.'.format(self.name, item_key), 0.005)
+        #else:
+        #    print_by_char('>>> {} grabbed the {}.'.format(self.name, item_key), 0.005)
         
         
         
@@ -140,8 +147,8 @@ class Environment:
         self.inventory.append(item)
         
         
-    def remove_item(self, item):
-        self.inventory.remove(item)
+    def remove_item(self, item_key):
+        del self.inventory[item_key]
         
         
     def get_inventory(self):
@@ -203,6 +210,7 @@ class Front_lobby(Environment):
         self.doors = {'door': self.south_hall_door, 'left door': self.south_hall_door}
         self.avail_locs = [self.front_lobby]
         self.inventory = {'wooden phone': self.lab_phone}
+        self.containers = {}
         
     
     def open_door(self, phrase, player):
@@ -268,13 +276,15 @@ class South_Hall(Environment):
     
     
     def __init__(self):
-        self.forbidden_locker = ForbiddenLocker()
+        self.forb_locker = ForbiddenLocker()
+        self.gents_locker = GentlemansLocker()
+        self.desp_locker = DesperationLocker()
         self.name = 'South Hall'
         self.first_visit = True
         self.current_prompt = [self.opener]
         self.doors = {}
         self.avail_locs = [self.south_hall, self.front_lobby]
-        self.containers = {'forbidden locker': self.forbidden_locker}
+        self.containers = {"forbidden locker": self.forb_locker, "gentleman's locker": self.gents_locker, "desperation locker": self.desp_locker}
         
     
     def update_current_prompt(self, first_visit, current_prompt, player):
@@ -326,7 +336,6 @@ class Door(object):
             
 class Container():
     max_capacity = 5
-    inventory = {}
     
     def get_inventory(self):
         return self.inventory
@@ -337,7 +346,11 @@ class Container():
         if active_actions[0] == 'put':
             print_by_char('>>> {} {} the {} in the {}.'.format(player.get_name(), active_actions[0], item_key, obj_of_prep), 0.005)
         else:
-            print_by_char('>>> {} {}ed the {} in the {}.'.format(player.get_name(), active_actions[0], item_key, obj_of_prep), 0.005)
+            print_by_char('>>> {} {}d the {} in the {}.'.format(player.get_name(), active_actions[0], item_key, obj_of_prep), 0.005)
+            
+            
+    def remove_item(self, item_key):
+        del self.inventory[item_key]
         
     
 
@@ -349,7 +362,20 @@ class ForbiddenLocker(Locker):
     
     def __init__(self):
         self.random_phone = Phone()
-        self.inventory['random phone'] = self.random_phone
+        self.inventory = {'random phone': self.random_phone}
+        
+        
+class DesperationLocker(Locker):
+    
+    def __init__(self):
+        self.inventory = {}
+          
+
+class GentlemansLocker(Locker):
+    
+    def __init__(self):
+        self.gents_laptop = Laptop()
+        self.inventory = {"gentlemans laptop": self.gents_laptop}
             
 
 class Item():
