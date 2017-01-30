@@ -10,7 +10,7 @@ import attacks
 class Player:
     
     def __init__(self, name):
-        self.just_saved = False
+        #self.just_saved = False
         self.main_laptop = Laptop()
         self.name = name
         self.health = 100
