@@ -24,7 +24,7 @@ SYS_PROMPTS = ["What do you want to do?: ",
                "Enter your command(s): "]
 JUST_SAVED = False
 
-#game_defs.intro()
+game_defs.intro()
 
 with open(SAVES_DIR + game_defs.load_option(SAVES_DIR) + '.dat', 'rb') as f:
     HERO, MAP_OBJECTS = pickle.load(f)

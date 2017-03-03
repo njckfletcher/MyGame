@@ -1,3 +1,10 @@
+'''
+Created on Dec 21, 2016
+
+@author: Hunter Malm
+
+This module is designed to parse input from the user
+'''
 import os
 from game.game_defs import print_by_char, save_game, display_prompt
 from profanity import profanity
@@ -132,11 +139,19 @@ def parse_command(prompt,
     fixed_parts = [word for word in raw_parts if word not in filter_words]
 
     # Specials
-    for i in range(len(fixed_parts)):
-        if fixed_parts[i] == "gentlemans":
-            fixed_parts[i] = "gentleman's"
+    #for i in range(len(fixed_parts)):
+    #    if fixed_parts[i] == "gentlemans":
+    #        fixed_parts[i] = "gentleman's"
+    for count, elem in enumerate(fixed_parts):
+        if fixed_parts[count] == "gentlemans":
+            fixed_parts[count] = "gentleman's"
 
     # Add actions and action indexes to active_actions list
+    # for count, elem in enumerate(fixed_parts):
+    #active_actions = [(elem, count) for count, elem in enumerate(fixed_parts) if elem in actions]
+    #print(active_actions)
+    #print('Number of actions: {}'.format(len(active_actions)))
+    #active_actions = []
     for i in range(len(fixed_parts)):
         for action in actions:
             if fixed_parts[i] == action:
@@ -1014,13 +1029,22 @@ def put_handle(active_actions,
             print_by_char('{} what where?'.format(active_actions[0]), 0.005)
 
 
-def use_item(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, active_objs, active_arts, active_adjs, player, envi):
-    
+def use_item(active_actions,
+             has_article,
+             has_adj,
+             has_sec_adj,
+             has_dir_obj,
+             active_objs,
+             active_arts,
+             active_adjs,
+             player,
+             envi):
+
     usable_items = [
         'laptop',
         'phone'
         ]
-    
+
     # Handles issue of removing objects from active_objs list when no action appears before it
     while active_objs != []:
         if active_actions[1] > active_objs[1]:
@@ -1193,7 +1217,7 @@ def change_name(saves_dir, active_actions, player, map_objects):
 
             os.remove(saves_dir + current_name + '.dat')
             player.set_name(new_name)
-            save_game(player, map_objects, saves_dir, False)            
+            save_game(player, map_objects, saves_dir, False)
             print_by_char('\n> Name changed to {}.'.format(new_name), 0.005)
             return active_actions.pop(2), active_actions.pop(2)
 
@@ -1224,7 +1248,13 @@ def save_before_quit(player, map_objects, saves_dir):
             print('')
 
 
-def debug_command(raw_parts, fixed_parts, active_actions, num_actv_actions, active_arts, active_locs, active_objs):
+def debug_command(raw_parts,
+                  fixed_parts,
+                  active_actions,
+                  num_actv_actions,
+                  active_arts,
+                  active_locs,
+                  active_objs):
 
     raw_word_count = len(raw_parts)
     fixed_word_count = len(fixed_parts)
@@ -1242,7 +1272,16 @@ def debug_command(raw_parts, fixed_parts, active_actions, num_actv_actions, acti
     print('')
 
 
-def debug_action(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj, has_prep, has_prep_art, has_prep_adj, has_sec_prep_adj, has_prep_obj):
+def debug_action(active_actions,
+                 has_article,
+                 has_adj,
+                 has_sec_adj,
+                 has_dir_obj,
+                 has_prep,
+                 has_prep_art,
+                 has_prep_adj,
+                 has_sec_prep_adj,
+                 has_prep_obj):
 
     print('')
     print('DEBUGGING PER ACTION({} at {}):'.format(active_actions[0], active_actions[1]))
@@ -1254,5 +1293,5 @@ def debug_action(active_actions, has_article, has_adj, has_sec_adj, has_dir_obj,
     print('Has preposition article: {}'.format(has_prep_art[0]))
     print('Has preposition adjective: {}'.format(has_prep_adj[0]))
     print('Has second preposition adjective: {}'.format(has_sec_prep_adj[0]))
-    print('Has object of preposition: {}'.format(has_prep_obj[0])) 
+    print('Has object of preposition: {}'.format(has_prep_obj[0]))
     print('')
